@@ -1,0 +1,3410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<script src="nativ.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Alışveriş">
+<meta name="theme-color" content="#fdf3ee">
+<script>window.nativBld=function(){try{return window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()?Capacitor.Plugins:null}catch(e){return null}};</script>
+<script>
+(function(){
+  var t0=Date.now(), MIN=2000, planli=false, hazir=false, nativ=false;
+  try{ nativ=!!(window.nativBld&&nativBld()); }catch(e){}
+  if(nativ){
+    document.documentElement.classList.add('nativ-ilk');
+    var st=document.createElement('style');
+    st.textContent='html.nativ-ilk #authGate{transition:none!important}';
+    document.head.appendChild(st);
+  }
+  // Sayfadaki logo ekranı çizilince sistemin açılış ekranını kaldır
+  window.__acHazir=function(){
+    var n=function(){ try{ var N=nativBld(); if(N&&N.SplashScreen) N.SplashScreen.hide({fadeOutDuration:150}).catch(function(){}); }catch(e){} };
+    try{ requestAnimationFrame(function(){ requestAnimationFrame(n); }); }catch(e){}
+    setTimeout(n,1500);
+  };
+  function gizle(){
+    var a=document.getElementById('acilis');
+    if(a){ a.classList.add('bit'); setTimeout(function(){ if(a.parentNode) a.parentNode.removeChild(a); },1000); }
+    setTimeout(function(){ document.documentElement.classList.remove('nativ-ilk'); },1000);
+  }
+  function planla(ek){
+    if(planli) return; planli=true;
+    setTimeout(gizle, Math.max(0, MIN-(Date.now()-t0))+(ek||150));
+  }
+  window.splashHazir=function(){
+    hazir=true;
+    var o=document.getElementById('internetYok'); if(o) o.remove();
+    planla();
+  };
+  function hataGoster(msg){
+    if(document.getElementById('internetYok')) return;
+    var d=document.createElement('div'); d.id='internetYok';
+    d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:100002;background:#fdf3ee;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#5a2a44;opacity:0;transition:opacity .6s ease';
+    d.innerHTML='<div style="font-size:54px">📡</div><h2 style="margin:14px 0 8px;font-size:20px">İnternet bağlantısı yok</h2><p style="margin:0 0 24px;font-size:14px;line-height:1.5;opacity:.8;max-width:300px">'+(msg||'Uygulamayı açmak için internete bağlanıp tekrar dene.')+'</p><button id="internetYokBtn" style="border:0;border-radius:14px;padding:13px 28px;font-size:15px;font-weight:600;color:#fff;background:#c9527a">Tekrar Dene</button>';
+    (document.body||document.documentElement).appendChild(d);
+    document.getElementById('internetYokBtn').onclick=function(){ location.reload(); };
+    setTimeout(function(){ d.style.opacity='1'; },30);
+    setTimeout(gizle,700);
+  }
+  // Logo en az MIN süre görünsün, sonra hata ekranı yumuşakça gelsin
+  window.internetYok=function(msg){
+    if(hazir||planli) return;
+    planli=true;
+    setTimeout(function(){ if(!hazir) hataGoster(msg); }, Math.max(0, MIN-(Date.now()-t0)));
+  };
+  window.addEventListener('online',function(){ if(document.getElementById('internetYok')) location.reload(); });
+  if(navigator.onLine===false) document.addEventListener('DOMContentLoaded',function(){ internetYok(); });
+  setTimeout(function(){ if(!hazir&&!document.getElementById('internetYok')){ planli=false; internetYok('Sunucuya bağlanılamadı. Bağlantını kontrol edip tekrar dene.'); } },12000);
+})();
+</script>
+<style>
+#acilis{position:fixed;left:0;top:0;right:0;bottom:0;z-index:100001;background:#fdf3ee;display:flex;align-items:center;justify-content:center;transition:opacity .8s ease,visibility .8s}
+#acilis.bit{opacity:0;visibility:hidden;pointer-events:none}
+#acilis .acLogo{width:112px;height:112px;border-radius:26px;background:#c9527a;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(201,82,122,.28);animation:acPop .7s cubic-bezier(.22,.8,.3,1) both,acNefes 1.8s ease-in-out .8s infinite;transition:transform .8s ease,opacity .8s ease}
+#acilis.bit .acLogo{animation:none;transform:scale(1.2);opacity:0}
+#acilis .acLogo svg{width:62px;height:62px}
+@keyframes acPop{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:scale(1)}}
+@keyframes acNefes{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){#acilis .acLogo{animation:none}}
+</style>
+<title>Feyzanur'un Alışveriş Listesi</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='58' font-size='70' text-anchor='middle' dominant-baseline='middle'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fontawesome/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+  :root{
+    --bg:#fdf3ee; --card:#fffaf7; --ink:#3d2b2b; --muted:#94776f;
+    --line:#f0ddd4; --accent:#c9527a; --accent-soft:#fce7ee;
+    --warn:#c2593f; --chip:#f8e6de;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#20161a; --card:#2b1e23; --ink:#f4e6e6; --muted:#bfa0a4;
+      --line:#3e2c33; --accent:#f08cae; --accent-soft:#3b232d;
+      --warn:#e59b7f; --chip:#33242a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#20161a; --card:#2b1e23; --ink:#f4e6e6; --muted:#bfa0a4;
+    --line:#3e2c33; --accent:#f08cae; --accent-soft:#3b232d;
+    --warn:#e59b7f; --chip:#33242a;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Quicksand","Segoe UI",Roboto,-apple-system,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.45;padding-bottom:var(--footer-h,110px);
+  }
+  header{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:var(--bg);border-bottom:1px solid var(--line);
+    padding:10px 12px 0;
+  }
+  h1{
+    font-family:"Caveat","Segoe UI",cursive;font-size:30px;line-height:1.1;
+    margin:4px 0 2px;color:var(--accent);font-weight:700;
+  }
+  .hello{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .hello b{color:var(--ink)}
+  .tabs{display:flex;gap:6px}
+  .tab{
+    flex:1;padding:11px 6px;border:1px solid var(--line);border-bottom:none;
+    background:var(--chip);color:var(--muted);border-radius:10px 10px 0 0;
+    font-size:14px;font-weight:600;cursor:pointer;text-align:center;
+  }
+  .tab.on{background:var(--card);color:var(--ink);border-color:var(--accent);box-shadow:inset 0 3px 0 var(--accent)}
+  .tab .n{display:inline-block;min-width:20px;padding:0 5px;margin-right:4px;
+    background:var(--accent);color:#fff;border-radius:20px;font-size:12px}
+  .tab .n.zero{background:var(--muted)}
+  .bar{display:flex;gap:8px;padding:10px 0}
+  input[type=search]{
+    flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);font-size:15px;min-width:0;
+  }
+  .btn{
+    padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);font-size:14px;cursor:pointer;
+    font-weight:600;white-space:nowrap;
+  }
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  .bIco{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s ease}
+  #sortBtn.primary .bIco{transform:scale(1.05)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.ghost{background:transparent;color:var(--muted)}
+  main{padding:8px 12px}
+  ul{list-style:none;margin:0;padding:0}
+  li.row{
+    display:flex;align-items:center;gap:10px;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px;
+    animation-duration:.5s;
+  }
+  li.row.on{border-color:var(--accent);background:var(--accent-soft)}
+  @keyframes selectPop{ 0%{transform:scale(1)} 45%{transform:scale(1.02)} 100%{transform:scale(1)} }
+  li.row.pop{animation:selectPop .3s ease-out}
+  @keyframes rowIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  li.row.rowIn{animation:rowIn .38s cubic-bezier(.22,.8,.3,1) both}
+  @keyframes spinFlower{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .btn:active,.tab:active,.menuItem:active,.hHead:active,.del:active,.delMsg:active{transform:scale(.95)}
+  .btn,.tab,.menuItem,.hHead,.del,.delMsg{transition:transform .12s ease,background .18s ease,color .18s ease,opacity .18s ease}
+  @keyframes nB{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+  .n.bump{animation:nB .3s ease}
+  h1 .spin{display:inline-block;animation:spinFlower 4s linear infinite}
+  .name{flex:1;font-size:15px;font-weight:600;word-break:break-word;transition:color .25s}
+  input.name{border:none;background:transparent;color:inherit;font-family:inherit;padding:2px 0;min-width:0}
+  input.name:focus{outline:none;border-bottom:1px dashed var(--accent)}
+  li.row.on .name{color:var(--accent)}
+  .check-pop{display:inline-block}
+  .box{animation-duration:.35s}
+  #liveDot{
+    display:inline-block;width:9px;height:9px;border-radius:50%;
+    background:var(--muted);margin-right:5px;vertical-align:middle;
+  }
+  #liveDot.on{background:var(--accent);animation:pulseDot 1.4s infinite}
+  @keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(201,82,122,.5)}70%{box-shadow:0 0 0 7px rgba(201,82,122,0)}100%{box-shadow:0 0 0 0 rgba(201,82,122,0)}}
+    body[data-view="sohbet"] #helloRow{display:none}
+  #liveLabel{font-size:11px;color:var(--muted)}
+  li.row input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:var(--accent)}
+  .name{flex:1;font-size:15px;font-weight:600;word-break:break-word}
+  li.row.on .name{color:var(--accent)}
+  .qty{
+    width:96px;flex:none;padding:8px;border:1px solid var(--line);border-radius:8px;
+    background:var(--bg);color:var(--ink);font-size:14px;text-align:center;
+  }
+  .del{border:none;background:none;color:var(--warn);font-size:20px;cursor:pointer;padding:0 4px}
+  .empty{color:var(--muted);text-align:center;padding:30px 10px;font-size:14px}
+  footer{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);
+    border-top:1px solid var(--line);padding:10px 12px;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    display:flex;gap:8px;align-items:center;
+  }
+  footer .count{flex:1;min-width:0;font-size:12px;color:var(--muted);line-height:1.2}
+  footer .count b{color:var(--ink);font-size:16px}
+  .modal{
+    position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);
+    display:none;align-items:center;justify-content:center;padding:16px;
+  }
+  .modal.show{display:flex}
+  .box{
+    background:var(--card);border-radius:14px;padding:16px;width:100%;max-width:420px;
+    max-height:80vh;overflow:auto;border:1px solid var(--line);
+  }
+  .box h2{margin:0 0 10px;font-size:16px}
+  .box label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+  .box input[type=text],.box input[type=tel],.box select{
+    width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;
+    background:var(--bg);color:var(--ink);font-size:15px;
+  }
+  .box input[type=password]{
+    width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;
+    background:var(--bg);color:var(--ink);font-size:15px;
+  }
+  .box .agRow2{display:flex;gap:10px}.box .agRow2>div{flex:1;min-width:0}
+  .box .pSep{height:1px;background:var(--line);margin:14px 0 2px}
+  .box .pNote{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.4}
+  @keyframes pmFade{from{opacity:0}to{opacity:1}}
+  @keyframes pmPop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
+  @keyframes pmPopOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(10px) scale(.96)}}
+  #profModal.show{animation:pmFade .3s ease both}
+  #profModal.show .box{animation:pmPop .42s cubic-bezier(.22,.8,.3,1) both}
+  #profModal.show.closing{animation:pmFade .22s ease reverse both}
+  #profModal.show.closing .box{animation:pmPopOut .22s ease both}
+  @media (prefers-reduced-motion:reduce){#profModal.show,#profModal.show .box{animation:none!important}}
+  #profErr{font-size:13px;min-height:16px;margin-top:10px;color:var(--warn)}
+  #profErr.ok{color:var(--accent)}
+  pre.prev{
+    background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;
+    font-size:12px;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;
+  }
+  .box .acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .box .acts .btn{flex:1;text-align:center}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  #printArea{display:none}
+
+  /* ---- köşe menüsü ---- */
+  .menuBtn{
+    position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;
+    width:38px;height:38px;border:1px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);cursor:pointer;z-index:25;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .menuBtn .bars{position:relative;width:18px;height:13px}
+  .menuBtn .hbar{
+    position:absolute;left:0;width:18px;height:2px;border-radius:2px;background:var(--ink);
+    transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .2s ease,top .28s cubic-bezier(.4,0,.2,1);
+  }
+  .menuBtn .hbar:nth-child(1){top:0}
+  .menuBtn .hbar:nth-child(2){top:5.5px}
+  .menuBtn .hbar:nth-child(3){top:11px}
+  .menuBtn.open .hbar:nth-child(1){top:5.5px;transform:rotate(45deg)}
+  .menuBtn.open .hbar:nth-child(2){opacity:0}
+  .menuBtn.open .hbar:nth-child(3){top:5.5px;transform:rotate(-45deg)}
+  .menuBadge{
+    position:absolute;top:-5px;right:-5px;background:var(--accent);color:#fff;
+    font-size:10px;min-width:16px;height:16px;border-radius:10px;
+    display:none;align-items:center;justify-content:center;padding:0 3px;font-weight:700;
+  }
+  .menuDrop{
+    position:absolute;top:calc(52px + env(safe-area-inset-top,0px));right:12px;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 14px 34px rgba(0,0,0,.22);display:flex;flex-direction:column;
+    padding:6px;z-index:26;min-width:244px;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transform:translateY(-6px) scale(.97);transform-origin:top right;
+    transition:opacity .2s ease,transform .2s ease,visibility .2s;
+  }
+  .menuDrop.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}
+  .menuTitle{
+    font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);
+    font-weight:700;padding:8px 10px 4px;
+  }
+  .menuItem{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px;border:none;border-radius:10px;background:transparent;color:var(--ink);
+    font-size:14px;font-weight:600;cursor:pointer;text-align:left;
+    transition:background .18s ease,color .18s ease;
+  }
+  .menuItem:hover{background:var(--chip)}
+  .menuItem.on{color:var(--accent);background:var(--accent-soft)}
+  .menuItem .miLeft{display:flex;align-items:center;gap:11px}
+  .miIco{
+    width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  .menuItemBadge{
+    background:var(--accent);color:#fff;font-size:11px;min-width:18px;height:18px;
+    border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 5px;
+  }
+  .menuDivider{height:1px;background:var(--line);margin:6px 4px}
+  .menuRow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 10px 10px}
+  .menuRow .lbl{font-size:14px;font-weight:600;line-height:1.2}
+  .menuRow .sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+  /* gece / gündüz anahtarı */
+  .themeSwitch{
+    position:relative;flex:none;width:62px;height:32px;border-radius:16px;border:none;padding:0;
+    cursor:pointer;background:#f3bf47;transition:background .3s ease;
+    box-shadow:inset 0 1px 4px rgba(0,0,0,.28);-webkit-tap-highlight-color:transparent;
+  }
+  .themeSwitch.dark{background:#3a3a3f}
+  .themeSwitch .knob{
+    position:absolute;top:4px;left:34px;width:24px;height:24px;border-radius:50%;background:#fff;
+    box-shadow:0 1px 5px rgba(0,0,0,.4);transition:left .3s cubic-bezier(.4,0,.2,1);
+  }
+  .themeSwitch.dark .knob{left:4px}
+  .themeSwitch svg{
+    position:absolute;top:7px;width:18px;height:18px;fill:none;stroke:#fff;stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;transition:opacity .25s ease;
+  }
+  .themeSwitch .sunIco{left:8px;opacity:1}
+  .themeSwitch .moonIco{right:8px;opacity:0}
+  .themeSwitch.dark .sunIco{opacity:0}
+  .themeSwitch.dark .moonIco{opacity:1}
+
+  /* ---- sohbet ---- */
+  #chatView{
+    padding:8px 12px;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(240,140,174,.12), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(201,82,122,.10), transparent 45%),
+      linear-gradient(180deg, #fdf1f5, #f7eef4 60%, #fdf1f5);
+  }
+  /* mesaj olmasa da sohbet zemini ekranın tamamını (alt çubuğun altına kadar) kaplasın */
+  #chatView{
+    box-sizing:border-box;
+    min-height:calc(100vh - var(--hdr-h,100px));
+    min-height:calc(100dvh - var(--hdr-h,100px));
+    margin-bottom:calc(-1 * var(--footer-h,110px));
+    padding-bottom:calc(var(--footer-h,110px) + 8px);
+    --bgov:rgba(255,248,250,.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) #chatView{--bgov:rgba(18,10,14,.45)}
+  }
+  :root[data-theme="dark"] #chatView{--bgov:rgba(18,10,14,.45)}
+  /* seçilen sohbet arka plan resmi */
+  /* resim sabit bir katmanda durur: kaydırırken oynamaz/titremez */
+  #chatView#chatView.hasBg{background:transparent}
+  #chatView.hasBg::before{
+    content:"";position:fixed;left:0;top:0;width:100%;height:100vh;height:100lvh;
+    z-index:-1;pointer-events:none;transform:translateZ(0);
+    background:var(--chatbg) center/cover no-repeat;
+  }
+  #chatView.hasBg .chatHint,#chatView.hasBg .empty{
+    background:var(--card);opacity:.92;border-radius:12px;padding:6px 10px;
+  }
+  #chatView.hasBg .empty{display:inline-block;align-self:center}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) #chatView{
+      background:
+        radial-gradient(circle at 15% 8%, rgba(240,140,174,.08), transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(240,140,174,.06), transparent 45%),
+        linear-gradient(180deg, #251820, #1f1620 60%, #251820);
+    }
+  }
+  :root[data-theme="dark"] #chatView{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(240,140,174,.08), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(240,140,174,.06), transparent 45%),
+      linear-gradient(180deg, #251820, #1f1620 60%, #251820);
+  }
+  @keyframes likeBurst{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.6) rotate(-8deg)}
+    60%{transform:scale(0.9) rotate(4deg)}
+    100%{transform:scale(1) rotate(0)}
+  }
+  .likeBtn .heartIco{display:inline-block}
+  .likeBtn .heartIco.burst{animation:likeBurst .45s ease}
+  .chatNameRow{padding:0}
+  .chatNameRow input{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);font-size:14px;
+  }
+  .chatHint{font-size:11px;color:var(--muted);margin:-4px 0 10px}
+  .chatMsgs{display:flex;flex-direction:column;gap:8px}
+  .msg{
+    max-width:82%;padding:8px 10px;border-radius:14px 14px 14px 4px;
+    background:var(--card);border:1px solid var(--line);font-size:14px;align-self:flex-start;
+    scroll-margin-bottom:calc(var(--footer-h, 110px) + 14px);
+  }
+  .msg:not(.mine){margin-left:46px;max-width:min(82%,calc(100% - 54px));border-radius:14px}
+  .msg.mine{align-self:flex-end;background:var(--accent-soft);border-color:var(--accent);border-radius:14px;margin-right:10px;max-width:min(82%,calc(100% - 20px))}
+  /* arka arkaya mesajlarda: isim yok, mesajlar yakın */
+  .msg.devam,.msg.devam.mine{border-radius:14px;margin-top:-5px}
+  .msg.devam .who{display:none}
+  /* WhatsApp gibi ayrı kuyruk elemanı (SVG): serinin ilk mesajında */
+  .msg:not(.mine):not(.devam){border-top-left-radius:0}
+  .msg.mine:not(.devam){border-top-right-radius:0}
+  .msg .tail{position:absolute;top:-1px;width:10px;height:14px;display:block;pointer-events:none;color:var(--card)}
+  .msg:not(.mine) .tail{left:-10px}
+  .msg.mine .tail{right:-10px;transform:scaleX(-1);color:var(--accent-soft)}
+  .msg .tail svg{display:block}
+  .msg .tail .tb{fill:none;stroke:var(--line);stroke-width:1;stroke-linejoin:round}
+  .msg.mine .tail .tb{stroke:var(--accent)}
+  .msg .tail .tf{fill:currentColor}
+  /* yuvarlak profil: isminin baş harfi */
+  .msgAv{
+    position:absolute;left:-46px;top:0;width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,#c9527a,#f08cae);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;font-weight:700;line-height:1;user-select:none;
+  }
+  .msg .who{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:2px}
+  /* karşı tarafın isim rengi: --wh (0-359) isimden üretilir */
+  .msg:not(.mine) .who{color:hsl(var(--wh,330) 62% 36%)}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .msg:not(.mine) .who{color:hsl(var(--wh,330) 78% 74%)}
+  }
+  :root[data-theme="dark"] .msg:not(.mine) .who{color:hsl(var(--wh,330) 78% 74%)}
+  /* gün başlıkları */
+  .gunAyrac{align-self:center;margin:8px 0 2px;padding:3px 12px;border-radius:12px;
+    background:var(--chip);color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.2px}
+  .msg .txt{word-break:break-word;white-space:pre-wrap}
+  .msg .meta{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:4px}
+  .msg .time{font-size:10px;color:var(--muted)}
+  .msg .delMsg{border:none;background:none;color:var(--warn);font-size:11px;font-weight:700;cursor:pointer;padding:0}
+  .msg{position:relative}
+  .delBtn{border:none;background:none;color:var(--muted);cursor:pointer;padding:0;display:flex;align-items:center}
+  .delBtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .delBtn:hover{color:var(--warn)}
+  .delMenu{
+    display:none;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:4px;box-shadow:0 8px 22px rgba(0,0,0,.22);
+    position:absolute;bottom:calc(100% + 4px);right:8px;z-index:6;min-width:178px;
+  }
+  .delMenu.show{display:flex;animation:zoomInPicker .18s ease}
+  .delMenu button{
+    border:none;background:none;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;
+    padding:9px 11px;border-radius:8px;text-align:left;display:flex;gap:9px;align-items:center;width:100%;
+    font-family:inherit;
+  }
+  .delMenu button:hover{background:var(--chip)}
+  .delMenu button.herkesten{color:var(--warn)}
+  .silinmisMsg{font-size:13px;font-style:italic;color:var(--muted)}
+  .msg .chatImg{
+    display:block;max-width:100%;max-height:260px;border-radius:10px;margin:2px 0 4px;
+    cursor:pointer;object-fit:cover;
+  }
+  .msg .quote{
+    border-left:3px solid var(--accent);background:rgba(0,0,0,.06);border-radius:6px;
+    padding:4px 8px;margin-bottom:5px;font-size:12px;color:var(--muted);
+  }
+  .msg .quote b{color:var(--accent)}
+  .replyBtn{border:none;background:none;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;padding:0}
+  .likeBtn{border:none;background:none;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;padding:0;
+           display:flex;align-items:center;gap:3px}
+  .likeBtn.liked{color:var(--warn)}
+  .reactPicker{
+    display:none;gap:6px;margin-top:6px;background:var(--card);border:1px solid var(--line);
+    border-radius:20px;padding:4px 8px;width:fit-content;
+  }
+  .reactPicker.show{display:flex;animation:zoomInPicker .18s ease}
+  @keyframes zoomInPicker{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+  .reactPicker button{border:none;background:none;font-size:18px;cursor:pointer;padding:2px;border-radius:50%;line-height:1}
+  .reactPicker button.secili{background:var(--accent-soft)}
+  .reactRozetleri{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+  .reactRozet{font-size:11px;background:var(--accent-soft);color:var(--ink);border-radius:20px;padding:1px 7px}
+  .reactRozet.benim{border:1px solid var(--accent)}
+  .replyPreviewRow{
+    display:none;align-items:center;gap:8px;padding:6px 10px;
+    border-left:3px solid var(--accent);border-radius:8px;background:var(--accent-soft);
+  }
+  .replyPreviewRow .rpText{flex:1;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .replyPreviewRow .rpText b{color:var(--accent)}
+  .replyPreviewRow button{border:none;background:none;color:var(--warn);font-size:16px;font-weight:700;cursor:pointer;padding:0 6px}
+  #chatFooter{gap:6px;flex-direction:column;align-items:stretch}
+  .chatFooterRow{display:flex;gap:8px;align-items:center}
+  #chatFooter input{
+    flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);font-size:15px;min-width:0;
+  }
+  /* --- Premium mesaj yazma alanı --- */
+  .chatFooterRow{gap:8px}
+  .composer{
+    flex:1;min-width:0;display:flex;align-items:center;gap:2px;
+    background:var(--bg);border:1px solid var(--line);border-radius:26px;padding:3px 4px;
+    transition:border-color .2s ease,box-shadow .2s ease;
+  }
+  .composer:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  #chatFooter .composer input#chatMsg{
+    flex:1;min-width:0;border:none;background:transparent;outline:none;box-shadow:none;
+    border-radius:0;padding:10px 6px;font-size:16px;color:var(--ink);
+  }
+  #chatFooter .composer .icoBtn{
+    flex:none;min-width:38px;height:38px;padding:0 8px;border:none;background:transparent;
+    border-radius:50%;color:var(--muted);
+  }
+  #chatFooter .composer .icoBtn:hover{color:var(--accent)}
+  #chatFooter .composer #chatMicBtn.recording{
+    width:auto;padding:0 12px;border-radius:19px;background:var(--warn);color:#fff;
+  }
+  .sendBtn{
+    flex:none;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;color:#fff;
+    background:linear-gradient(135deg,var(--accent),#e0709a);
+    box-shadow:0 4px 12px rgba(201,82,122,.35);
+    transition:transform .12s ease,box-shadow .18s ease;
+  }
+  .sendBtn svg{width:21px;height:21px;fill:currentColor;margin-left:2px;display:block}
+  .sendBtn:active{transform:scale(.9);box-shadow:0 2px 6px rgba(201,82,122,.3)}
+  #chatImgBtn{flex:none;font-size:18px;line-height:1;padding:10px 12px}
+  #chatImgBtn:disabled{opacity:.5;cursor:default}
+  #chatMicBtn{flex:none;font-size:18px;line-height:1;padding:10px 12px;transition:background .2s,color .2s}
+  #chatMicBtn.recording{background:var(--warn);color:#fff;border-color:var(--warn);animation:micPulse 1s ease infinite}
+  #sesliBtn.recording{background:var(--warn);color:#fff;border-color:var(--warn)}
+  .icoBtn{display:inline-flex;align-items:center;justify-content:center}
+  .icoBtn svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  #chatMicBtn.recording svg{display:none}
+  .recDot{width:9px;height:9px;border-radius:50%;background:#fff;flex:none;margin-right:6px;animation:recBlink 1s ease infinite}
+  @keyframes recBlink{0%,100%{opacity:1}50%{opacity:.35}}
+  .recTime{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  .eq{display:inline-flex;align-items:flex-end;gap:2.5px;height:15px}
+  .eq i{width:3px;background:currentColor;border-radius:2px;animation:eqB 1s ease-in-out infinite}
+  .eq i:nth-child(1){animation-delay:0s}
+  .eq i:nth-child(2){animation-delay:.18s}
+  .eq i:nth-child(3){animation-delay:.36s}
+  @keyframes eqB{0%,100%{height:5px}50%{height:15px}}
+  .spinIco{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:spinFlower .8s linear infinite;display:inline-block}
+  .audioPreviewRow{
+    display:none;align-items:center;gap:10px;padding:8px 12px;
+    border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:13px;
+  }
+  .audioPreviewRow #audioPreviewSure{flex:1;color:var(--muted);font-variant-numeric:tabular-nums}
+  .audioPreviewRow button{border:none;background:none;color:var(--warn);font-size:16px;font-weight:700;cursor:pointer;padding:0 6px}
+  .msg audio{max-width:220px;height:36px;display:block;margin:2px 0 4px}
+  .imgPreviewRow{
+    display:none;align-items:center;gap:8px;padding:4px 2px;
+    border:1px dashed var(--line);border-radius:10px;background:var(--accent-soft);
+  }
+  .imgPreviewRow img{width:44px;height:44px;object-fit:cover;border-radius:8px;flex:none}
+  .imgPreviewName{flex:1;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .imgPreviewRow button{border:none;background:none;color:var(--warn);font-size:16px;font-weight:700;cursor:pointer;padding:0 6px}
+  .imgBox{padding:10px}
+  .imgBox img{width:100%;border-radius:10px;display:block;max-height:70vh;object-fit:contain;background:var(--bg)}
+  .imgBox .acts{margin-top:10px}
+
+  /* ---- geçmişe kaydet ---- */
+  .btn:disabled{opacity:.5;cursor:default}
+  .sumTxt{font-size:14px;margin:0 0 6px;line-height:1.5}
+  .toast{
+    position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));
+    transform:translate(-50%,14px);background:var(--ink);color:var(--bg);
+    padding:9px 16px;border-radius:20px;font-size:13px;font-weight:600;z-index:60;
+    opacity:0;pointer-events:none;transition:opacity .25s ease,transform .3s cubic-bezier(.22,.8,.3,1);max-width:90%;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* ---- sayfa geçişleri ---- */
+  body{overflow-x:clip}
+  .vOut{opacity:0 !important;transform:translateY(4px);transition:opacity .16s ease,transform .16s ease}
+  @keyframes vInR{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+  @keyframes vInL{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+  @keyframes vInF{from{opacity:0}to{opacity:1}}
+  .vInR{animation:vInR .32s cubic-bezier(.22,.8,.3,1) both}
+  .vInL{animation:vInL .32s cubic-bezier(.22,.8,.3,1) both}
+  .vInF{animation:vInF .32s ease both}
+  @media (prefers-reduced-motion: reduce){
+    .vOut{transition:none}
+    .vInR,.vInL,.vInF{animation:none}
+  }
+
+  /* ---- geçmiş listeler ---- */
+  #histView{padding:8px 12px 24px}
+  .hMonth{
+    font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.05em;margin:14px 2px 6px;
+  }
+  .hCard{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    margin-bottom:8px;overflow:hidden;transition:border-color .25s ease;
+  }
+  .hCard.open{border-color:var(--accent)}
+  .hHead{
+    display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;
+    border:none;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  }
+  .hHead .txt{flex:1;min-width:0}
+  .hHead .d{font-weight:700;font-size:15px}
+  .hHead .s{font-size:12px;color:var(--muted)}
+  .hHead .note{font-size:12px;color:var(--accent);font-weight:600;word-break:break-word}
+  .hChev{color:var(--muted);transition:transform .25s ease}
+  .hCard.open .hChev{transform:rotate(90deg)}
+  .hBody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+  .hCard.open .hBody{grid-template-rows:1fr}
+  .hInner{overflow:hidden;min-height:0}
+  .hIn2{padding:0 12px 12px}
+  .hSec h3{font-size:13px;margin:10px 0 2px;color:var(--accent);letter-spacing:.03em}
+  .hIt{
+    display:flex;justify-content:space-between;gap:10px;padding:6px 0;
+    border-bottom:1px solid var(--line);font-size:14px;
+  }
+  .hIt:last-child{border-bottom:none}
+  .hIt .n{word-break:break-word}
+  .hIt .q{font-weight:700;white-space:nowrap}
+  #histView mark{background:var(--accent-soft);color:var(--accent);border-radius:3px;padding:0 2px}
+  .skel{height:56px;border-radius:12px;border:1px solid var(--line);margin-bottom:8px;
+        background:linear-gradient(90deg,var(--card) 25%,var(--chip) 50%,var(--card) 75%);
+        background-size:200% 100%;animation:skl 1.2s linear infinite}
+  @keyframes skl{to{background-position:-200% 0}}
+  .hActs{display:flex;gap:8px;margin-top:12px}
+  .hActs .btn.del{color:var(--warn)}
+
+  @media print{
+    header,footer,.modal,main{display:none !important}
+    body{background:#fff;color:#000;padding:0}
+    #printArea{display:block;padding:16px;font-size:13px}
+    #printArea h2{font-size:16px;margin:14px 0 6px;border-bottom:1px solid #000}
+    #printArea table{width:100%;border-collapse:collapse}
+    #printArea td{border-bottom:1px solid #bbb;padding:5px 4px}
+    #printArea td.q{text-align:right;white-space:nowrap;font-weight:bold}
+  }
+
+  body:not(.giris-ok)>header,body:not(.giris-ok)>main,body:not(.giris-ok)>footer,body:not(.giris-ok)>.modal,body:not(.giris-ok)>.toast{display:none!important}
+  .chatNameRow{display:none}
+  .profBox{display:flex;align-items:center;gap:12px;padding:12px 12px 10px}
+  .avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#c9527a,#f08cae);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 12px rgba(201,82,122,.35)}
+  .avatar svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.8}
+  .profAd{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .profKa{font-size:12px;color:var(--muted)}
+  #cikisBtn{color:var(--warn)}
+  #authGate{position:fixed;inset:0;z-index:999;display:flex;transition:opacity .6s ease,visibility .6s;overflow:auto;padding:18px;background:radial-gradient(120% 90% at 20% 0%,#5a2a44 0%,#2a1620 55%,#170d12 100%);color:#f6e9ea}
+  body.giris-ok #authGate{opacity:0;visibility:hidden;pointer-events:none}
+  .agCard{width:100%;max-width:400px;margin:auto;padding:28px 22px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.45);text-align:center}
+  .agLogo{width:64px;height:64px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;background:linear-gradient(135deg,#c9527a,#f08cae);box-shadow:0 8px 24px rgba(240,140,174,.4)}
+  .agTitle{font-family:"Caveat",cursive;font-size:32px;margin:0;color:#f08cae;line-height:1.1}
+  .agSub{font-size:13px;color:#cbb0b4;margin:6px 0 18px}
+  .agTabs{display:flex;position:relative;background:rgba(0,0,0,.25);border-radius:14px;padding:4px;margin-bottom:6px}
+  .agTabs::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:11px;background:linear-gradient(135deg,#c9527a,#f08cae);box-shadow:0 4px 14px rgba(201,82,122,.4);transition:transform .45s cubic-bezier(.4,0,.2,1)}
+  .agTabs[data-a="fKayit"]::before{transform:translateX(100%)}
+  .agTabs button{position:relative;z-index:1;transition:color .35s ease;flex:1;border:0;background:none;color:#cbb0b4;padding:10px;border-radius:11px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .agTabs button.on{color:#fff}
+  #authGate form{display:none;text-align:left}
+  #authGate form.on{display:block}
+  #authGate label{display:block;font-size:12px;color:#cbb0b4;margin:12px 0 4px}
+  #authGate label i{opacity:.7;font-style:normal}
+  #authGate input,#authGate textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:15px;outline:none}
+  #authGate input:focus,#authGate textarea:focus{border-color:#f08cae}
+  .agRow{display:flex;gap:10px}.agRow>div{flex:1;min-width:0}
+  .agBtn{width:100%;margin-top:18px;padding:13px;border:0;border-radius:14px;background:linear-gradient(135deg,#c9527a,#f08cae);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(201,82,122,.4)}
+  .agBtn:disabled{opacity:.6}
+  .agBtn.ghost{background:rgba(255,255,255,.1);box-shadow:none}
+  .agErr{color:#ffb4a2;font-size:13px;min-height:16px;margin-top:10px;text-align:center}
+  .agInfo{font-size:14px;line-height:1.55;color:#e8d5d7}
+  .agInfo b{font-size:44px;display:block;margin-bottom:8px}
+
+  @keyframes agUp{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+  @keyframes agFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes agIn{from{opacity:0}to{opacity:1}}
+  @keyframes agFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .agCard{animation:agUp .8s cubic-bezier(.22,.8,.3,1) both}
+  .agLogo{animation:agFloat 4s ease-in-out infinite}
+  #authGate form.on,#agForms,#agBekle,#agRed,#agYok,#agYukle{animation:agFade .55s cubic-bezier(.22,.8,.3,1) both}
+  #authGate form.on label,#authGate form.on .agBtn{animation:agFade .6s cubic-bezier(.22,.8,.3,1) both}
+  #authGate form.on>*:nth-child(2){animation-delay:.05s}#authGate form.on>*:nth-child(3){animation-delay:.1s}#authGate form.on>*:nth-child(4){animation-delay:.15s}#authGate form.on>*:nth-child(5){animation-delay:.2s}
+  #authGate input,#authGate textarea,.agBtn{transition:border-color .3s ease,box-shadow .3s ease,transform .2s ease,opacity .3s ease}
+  #authGate input:focus,#authGate textarea:focus{box-shadow:0 0 0 4px rgba(240,140,174,.18)}
+  .agBtn:active{transform:scale(.97)}
+  .agErr{transition:opacity .3s}
+  body.giris-ok{animation:agIn .9s ease both}
+  @media (prefers-reduced-motion:reduce){.agCard,.agLogo,#authGate *,body.giris-ok{animation:none!important;transition:none!important}}
+
+  .pwSar{position:relative}
+  .pwSar input{padding-right:46px!important}
+  .pwGoz{position:absolute;right:0;top:0;bottom:0;height:auto;transform:none;width:46px;border:0;background:none;color:#cbb0b4;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:0 12px 12px 0;transition:color .25s}
+  .pwGoz.on{color:#f08cae}
+
+  /* ---- Varsayılan liste düzenleme sayfası ---- */
+  #varView{padding:8px 12px 24px}
+  #varView .vHint{font-size:12px;color:var(--muted);margin:4px 2px 10px;line-height:1.45}
+  #varView .vRow{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:6px}
+  #varView .vRow input.name{flex:1;min-width:0;border:none;background:transparent;color:inherit;font-family:inherit;font-size:15px;font-weight:600;padding:2px 0}
+  #varView .vRow .qty{width:84px}
+  #varView .vMv{border:none;background:none;color:var(--muted);font-size:15px;cursor:pointer;padding:4px 3px;line-height:1}
+  #varView .vMv:disabled{opacity:.25;cursor:default}
+  #varView .vActs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  #varView .vActs .btn{flex:1;min-width:130px}
+  #varView .vNew{background:var(--accent-soft);border-color:var(--accent)}
+
+    /* ---- FontAwesome ikonları ---- */
+  i.bIco{width:1.15em;height:auto;font-size:16px;text-align:center;stroke:none;fill:currentColor}
+  i.miIco{width:22px;height:auto;font-size:17px;text-align:center;stroke:none;fill:currentColor}
+  i.ic{margin-right:6px}
+  .themeSwitch i{position:absolute;top:7px;width:18px;height:18px;line-height:18px;font-size:13px;text-align:center;color:#fff;transition:opacity .25s ease}
+  .icoBtn i{font-size:19px;line-height:1;display:block}
+  .sendBtn i{font-size:18px;line-height:1;display:block;margin-left:-2px}
+  .avatar i{font-size:21px;color:#fff}
+  .del i,.imgPreviewRow button i,.replyPreviewRow button i,.audioPreviewRow button i{font-size:.85em}
+  .agInfo b i{color:var(--accent)}
+  #varView .vMv i{font-size:13px}
+  .hChev i{font-size:13px}
+  .pwGoz i{font-size:17px}
+  .stHead button i{font-size:20px}
+  .stTabs i{margin-right:4px}
+  /* ---- hikayeler ---- */
+  #storyBar{display:none;gap:10px;overflow-x:auto;margin:0 -12px;padding:6px 12px 6px;scrollbar-width:none}
+  body[data-view="sohbet"] #storyBar{display:flex}
+  #storyBar::-webkit-scrollbar{display:none}
+  .stItem{flex:0 0 auto;width:50px;text-align:center;cursor:pointer;background:none;border:0;padding:0;color:var(--ink);font:inherit;animation:stPop .35s ease-out both}
+  @keyframes stPop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+  .stRing{width:44px;height:44px;border-radius:50%;padding:2px;box-sizing:border-box;margin:0 auto;display:flex;
+    background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);transition:transform .15s ease,background .3s ease}
+  .stRing.seen{background:var(--line)}
+  .stItem:active .stRing{transform:scale(.92)}
+  .stAv{width:100%;height:100%;border-radius:50%;border:2px solid var(--card);box-sizing:border-box;display:flex;align-items:center;
+    justify-content:center;color:#fff;font-weight:700;font-size:16px}
+  .stAdd .stRing{background:var(--line)}
+  .stAdd .stAv{background:var(--accent-soft);color:var(--accent);font-size:22px;font-weight:400}
+  .stName{font-size:10px;margin-top:2px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+  #storyView{position:fixed;inset:0;z-index:70;background:#000;display:none;flex-direction:column;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  #storyView img{-webkit-user-drag:none;pointer-events:none}
+  #storyView.hold .stBars,#storyView.hold .stHead,#storyView.hold .stCap,#storyView.hold .stFoot{opacity:0}
+  .stBars,.stHead,.stCap,.stFoot{transition:opacity .2s ease}
+  #storyView.show{display:flex;animation:stIn .22s ease-out}
+  @keyframes stIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+  .stBars{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));left:8px;right:8px;display:flex;gap:4px;z-index:4}
+  .stBarI{flex:1;height:3px;background:rgba(255,255,255,.35);border-radius:2px;overflow:hidden}
+  .stBarI i{display:block;height:100%;width:0;background:#fff}
+  .stHead{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:10px;right:6px;display:flex;align-items:center;gap:10px;z-index:4;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .stHead .stAv{width:36px;height:36px;flex:0 0 36px;font-size:16px;border:0}
+  .stHead b{font-size:14px;display:block}
+  .stHead small{font-size:12px;opacity:.85}
+  .stHead .sp{flex:1}
+  .stHead button{background:none;border:0;color:#fff;font-size:22px;padding:6px 9px;cursor:pointer}
+  .stBody{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .stBody img{max-width:100%;max-height:100%;object-fit:contain;animation:stIn .25s ease-out}
+  .stText{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:32px;text-align:center;color:#fff;
+    font-size:26px;font-weight:700;line-height:1.3;word-break:break-word;white-space:pre-wrap;animation:stIn .25s ease-out}
+  .stCap{position:absolute;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));padding:40px 18px 14px;
+    background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font-size:16px;text-align:center;white-space:pre-wrap;word-break:break-word}
+  .stTap{position:absolute;top:calc(64px + env(safe-area-inset-top,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:3}
+  .stFoot{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(transparent,rgba(0,0,0,.55));color:#fff}
+  .stFoot .sp{flex:1}
+  .stFoot button{background:none;border:0;color:#fff;font:inherit;font-size:15px;display:flex;align-items:center;gap:7px;padding:8px 10px;cursor:pointer;border-radius:22px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .stFoot button i{font-size:22px}
+  .stFoot button:active{background:rgba(255,255,255,.15)}
+  #stLike.on i{color:#ff3b5c;animation:stHeart .45s ease-out}
+  @keyframes stHeart{0%{transform:scale(.6)}50%{transform:scale(1.45)}100%{transform:scale(1)}}
+  .stFly{position:absolute;right:22px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:6;font-size:46px;color:#ff3b5c;pointer-events:none;animation:stFly .9s ease-out forwards}
+  @keyframes stFly{0%{opacity:0;transform:translateY(0) scale(.5)}20%{opacity:1;transform:translateY(-20px) scale(1.2)}100%{opacity:0;transform:translateY(-130px) scale(1)}}
+  .stSheetBg{position:absolute;inset:0;z-index:8;background:rgba(0,0,0,.45);display:none}
+  .stSheetBg.show{display:block}
+  .stSheet{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:65%;display:none;flex-direction:column;background:var(--card);color:var(--ink);
+    border-radius:18px 18px 0 0;padding:8px 0 calc(12px + env(safe-area-inset-bottom,0px));animation:stUp .25s ease-out}
+  .stSheet.show{display:flex}
+  @keyframes stUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .stSheet .grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 8px}
+  .stSheet h4{margin:0;padding:4px 18px 10px;font-size:15px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line)}
+  .stSheet h4 span{display:flex;align-items:center;gap:6px}
+  .stSheet h4 .hr{color:#ff3b5c}
+  .stList{overflow-y:auto;padding:4px 0;-webkit-overflow-scrolling:touch}
+  .stRow{display:flex;align-items:center;gap:12px;padding:8px 18px}
+  .stRow .stAv{width:38px;height:38px;flex:0 0 38px;border:0;font-size:16px}
+  .stRow .nm{flex:1;min-width:0}
+  .stRow .nm b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stRow .nm small{color:var(--muted);font-size:12px}
+  .stRow .hr{color:#ff3b5c;font-size:18px}
+  .stEmpty{padding:22px 18px;text-align:center;color:var(--muted);font-size:14px}
+  .stTap.l{left:0;width:35%}
+  .stTap.r{right:0;width:65%}
+  #stTxt::placeholder{color:rgba(255,255,255,.7)}
+  .stSw{display:flex;gap:8px;margin-top:10px;justify-content:center}
+  .stSw button{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0}
+  .stSw button.on{border-color:var(--ink)}
+</style>
+</head>
+<body>
+<div id="acilis"><div class="acLogo"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#fffaf7"/></svg></div></div>
+<script>if(window.__acHazir)__acHazir();</script>
+
+<div id="authGate"><div class="agCard">
+  <div class="agLogo">🌸</div>
+  <h2 class="agTitle">Feyzanur'un Alışveriş Listesi</h2>
+  <div id="agYukle" class="agSub">Yükleniyor…</div>
+  <div id="agForms" style="display:none">
+    <div class="agSub" style="margin-bottom:12px">Devam etmek için giriş yap veya kayıt ol</div>
+    <div class="agTabs"><button class="on" data-f="fGiris">Giriş Yap</button><button data-f="fKayit">Kayıt Ol</button></div>
+    <form id="fGiris" class="on">
+      <label>Kullanıcı adı</label><input id="gKa" name="username" type="text" autocomplete="username" autocapitalize="none" required>
+      <label>Şifre</label><input id="gSf" name="password" type="password" autocomplete="current-password" required>
+      <div class="agErr" id="gHata"></div>
+      <button class="agBtn" id="gBtn">Giriş Yap</button>
+    </form>
+    <form id="fKayit">
+      <div class="agRow"><div><label>Ad *</label><input id="kAd" autocomplete="given-name" required></div><div><label>Soyad *</label><input id="kSoyad" autocomplete="family-name" required></div></div>
+      <label>Kullanıcı adı *</label><input id="kKa" autocomplete="username" autocapitalize="none" placeholder="harf, rakam, . veya _" required>
+      <label>Şifre * <i>(en az 6 karakter)</i></label><input id="kSf" type="password" autocomplete="new-password" required>
+      <label>Şifre tekrar *</label><input id="kSf2" type="password" autocomplete="new-password" required>
+      <label>Telefon <i>(isteğe bağlı)</i></label><input id="kTel" type="tel" autocomplete="tel">
+      <label>Yöneticiye not <i>(isteğe bağlı)</i></label><textarea id="kNot" rows="2" maxlength="200" placeholder="Kim olduğunu belirtebilirsin"></textarea>
+      <div class="agErr" id="kHata"></div>
+      <button class="agBtn" id="kBtn">Kayıt Ol</button>
+    </form>
+  </div>
+  <div id="agBekle" class="agInfo" style="display:none"><b><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></b>Kaydın alındı.<br>Yönetici onayladığında bu ekran <u>otomatik</u> açılacak.<button class="agBtn ghost agCikis">Çıkış Yap</button></div>
+  <div id="agRed" class="agInfo" style="display:none"><b><i class="fa-solid fa-ban" aria-hidden="true"></i></b>Bu hesaba erişim verilmedi.<br>Yönetici ile iletişime geç.<button class="agBtn ghost agCikis">Çıkış Yap</button></div>
+  <div id="agYok" class="agInfo" style="display:none"><b><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></b>Hesap kaydı bulunamadı veya bağlantı kurulamadı.<button class="agBtn ghost agCikis">Çıkış Yap</button></div>
+</div></div>
+
+<header>
+  <button class="menuBtn" id="menuBtn" aria-label="Menü">
+    <span class="bars"><span class="hbar"></span><span class="hbar"></span><span class="hbar"></span></span>
+    <span class="menuBadge" id="menuBadge"></span>
+  </button>
+  <div class="menuDrop" id="menuDrop">
+    <div class="profBox"><div class="avatar"><i class="fa-solid fa-user" aria-hidden="true"></i></div><div style="min-width:0"><div class="profAd" id="profAd"></div><div class="profKa" id="profKa"></div></div></div>
+    <button class="menuItem" id="profDuzBtn" type="button"><span class="miLeft"><i class="fa-solid fa-user-pen miIco" aria-hidden="true"></i>Profili Düzenle</span></button>
+    <div class="menuDivider"></div>
+    <div class="menuTitle">Sayfalar</div>
+    <button class="menuItem on" data-view="liste">
+      <span class="miLeft"><i class="fa-solid fa-house miIco" aria-hidden="true"></i>Ana Menü</span>
+    </button>
+    <button class="menuItem" data-view="sohbet">
+      <span class="miLeft"><i class="fa-solid fa-comments miIco" aria-hidden="true"></i>Sohbet</span>
+      <span class="menuItemBadge" id="sohbetItemBadge"></span>
+    </button>
+    <button class="menuItem" data-view="gecmis">
+      <span class="miLeft"><i class="fa-solid fa-clock-rotate-left miIco" aria-hidden="true"></i>Geçmiş Listeler</span>
+    </button>
+    <button class="menuItem" data-view="varsayilan">
+      <span class="miLeft"><i class="fa-solid fa-list-check miIco" aria-hidden="true"></i>Varsayılan Liste</span>
+    </button>
+    <div class="menuDivider"></div>
+    <div class="menuTitle">Görünüm</div>
+    <div class="menuRow">
+      <div>
+        <div class="lbl">Gece modu</div>
+        <div class="sub" id="temaAlt">Gündüz</div>
+      </div>
+      <button class="themeSwitch" id="temaSwitch" type="button" role="switch" aria-checked="false" aria-label="Gece modu">
+        <i class="fa-solid fa-sun sunIco" aria-hidden="true"></i>
+        <i class="fa-solid fa-moon moonIco" aria-hidden="true"></i>
+        <span class="knob"></span>
+      </button>
+    </div>
+    <div class="menuRow">
+      <div>
+        <div class="lbl">Sohbet arka planı</div>
+        <div class="sub" id="bgAlt">Varsayılan</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button type="button" class="btn ghost" id="bgSecBtn" style="padding:6px 10px;font-size:12px">Seç</button>
+        <button type="button" class="btn ghost" id="bgKaldirBtn" style="padding:6px 10px;font-size:12px;display:none">Kaldır</button>
+      </div>
+      <input type="file" id="bgInput" accept="image/*" style="display:none">
+    </div>
+    <div class="menuRow">
+      <div>
+        <div class="lbl">Bağlantı</div>
+        <div class="sub"><span id="liveDot"></span><span id="liveLabel">Canlı bağlantı yok</span></div>
+      </div>
+    </div>
+    <div class="menuDivider"></div>
+    <button class="menuItem" id="cikisBtn"><span class="miLeft"><i class="fa-solid fa-right-from-bracket miIco" aria-hidden="true"></i>Çıkış Yap</span></button>
+  </div>
+  <h1>Feyzanur'un Alışveriş Listesi <span class="spin">🌸</span></h1>
+  <p class="hello" id="helloRow">Hoş geldin <b id="helloAd">Feyzanur</b> 💐 — <span id="greet"></span></p>
+  <div class="tabs" id="listTabs">
+    <button class="tab on" data-t="pazar"><span class="n zero" id="nPazar">0</span>PAZAR</button>
+    <button class="tab" data-t="market"><span class="n zero" id="nMarket">0</span>MARKET</button>
+  </div>
+  <div class="bar" id="listBar">
+    <input type="search" id="q" placeholder="Ürün ara…">
+    <button class="btn ghost" id="sortBtn" title="İşaretlileri üste sırala"><i class="fa-solid fa-arrow-down-wide-short bIco" aria-hidden="true"></i><span>Sırala</span></button>
+    <button class="btn ghost icoBtn" id="sesliBtn" title="Sesli komutla ürün ekle"><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
+    <button class="btn ghost" id="addBtn">+ Ürün</button>
+    <button class="btn ghost" id="clearBtn">Temizle</button>
+  </div>
+  <div class="bar" id="histBar" style="display:none">
+    <input type="search" id="histQ" placeholder="Geçmişte ürün ara… (örn. peynir)">
+  </div>
+  <div class="tabs" id="varTabs" style="display:none">
+    <button class="tab on" data-vt="pazar">PAZAR</button>
+    <button class="tab" data-vt="market">MARKET</button>
+  </div>
+  <div id="storyBar"></div>
+</header>
+
+<main id="listView"><ul id="list"></ul></main>
+
+<main id="chatView" style="display:none">
+  <p class="chatHint">Yazdığın mesajlar herkese açık görünür. Herhangi bir mesajı kendi ekranından gizleyebilirsin; herkesten silme yalnızca kendi mesajlarındadır.
+    <button type="button" class="btn ghost" id="bildirimBtn" style="font-size:11px;padding:3px 8px;margin-left:6px"><i class="fa-solid fa-bell ic" aria-hidden="true"></i>Bildirimleri Aç</button>
+  </p>
+  <div class="chatMsgs" id="chatMsgs"><div class="empty">Henüz mesaj yok. İlk mesajı sen yaz! 💬</div></div>
+</main>
+
+<main id="histView" style="display:none"></main>
+
+<main id="varView" style="display:none"></main>
+
+<div class="modal" id="storyAdd"><div class="box">
+  <div style="display:flex;gap:6px;margin-bottom:10px">
+    <button class="btn primary" id="stTabFoto" type="button"><i class="fa-solid fa-camera" aria-hidden="true"></i>Fotoğraf</button>
+    <button class="btn ghost" id="stTabYazi" type="button"><i class="fa-solid fa-pen" aria-hidden="true"></i>Yazı</button>
+  </div>
+  <div id="stFotoPane">
+    <input type="file" id="stFile" accept="image/*" style="display:none">
+    <button class="btn ghost" id="stPick" type="button">Fotoğraf seç</button>
+    <img id="stPrev" alt="" style="display:none;width:100%;max-height:300px;object-fit:contain;border-radius:10px;margin-top:8px">
+    <textarea id="stCap" maxlength="120" rows="2" placeholder="Yazı ekle (isteğe bağlı)" style="width:100%;box-sizing:border-box;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);color:var(--ink);font:inherit"></textarea>
+  </div>
+  <div id="stYaziPane" style="display:none">
+    <div id="stTxtBox" style="border-radius:14px;min-height:200px;display:flex;align-items:center;justify-content:center;padding:14px">
+      <textarea id="stTxt" maxlength="160" rows="4" placeholder="Bir şeyler yaz..." style="width:100%;background:transparent;border:0;outline:0;resize:none;color:#fff;font:700 22px/1.3 system-ui,sans-serif;text-align:center"></textarea>
+    </div>
+    <div class="stSw" id="stSw"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+    <button class="btn ghost" id="stCancel" type="button">İptal</button>
+    <button class="btn primary" id="stShare" type="button">Paylaş</button>
+  </div>
+</div></div>
+
+<div id="storyView">
+  <div class="stBars" id="stBars"></div>
+  <div class="stHead" id="stHead"></div>
+  <div class="stBody" id="stBody"></div>
+  <div class="stTap l" id="stTapL"></div>
+  <div class="stTap r" id="stTapR"></div>
+  <div class="stFoot" id="stFoot"></div>
+  <div class="stSheetBg" id="stSheetBg"></div>
+  <div class="stSheet" id="stSheet"></div>
+</div>
+
+<footer id="listFooter">
+  <div class="count"><b id="selCount">0</b> ürün seçildi 🧺<br><span id="subCount"></span></div>
+  <button class="btn" id="printBtn">PDF</button>
+  <button class="btn" id="saveHistBtn" title="Bu haftanın listesini geçmişe kaydet"><i class="fa-solid fa-floppy-disk bIco" aria-hidden="true"></i><span>Kaydet</span></button>
+  <button class="btn primary" id="sendBtn"><i class="fa-solid fa-paper-plane bIco" aria-hidden="true"></i><span>GÖNDER</span></button>
+</footer>
+
+<footer id="chatFooter" style="display:none">
+  <div class="chatNameRow">
+    <input type="text" id="chatName" placeholder="Adınız (mesajın yanında görünecek)" maxlength="30">
+  </div>
+  <div class="imgPreviewRow" id="imgPreviewRow">
+    <img id="imgPreviewThumb" alt="">
+    <span class="imgPreviewName" id="imgPreviewName"></span>
+    <button type="button" id="imgPreviewCancel" title="Kaldır"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+  </div>
+  <div class="replyPreviewRow" id="replyPreviewRow">
+    <span class="rpText" id="replyPreviewText"></span>
+    <button type="button" id="replyPreviewCancel" title="Vazgeç"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+  </div>
+  <div class="audioPreviewRow" id="audioPreviewRow">
+    <span id="audioPreviewIco" style="display:inline-flex;color:var(--accent)"><i class="fa-solid fa-microphone" style="font-size:14px" aria-hidden="true"></i></span>
+    <span id="audioPreviewSure">0:00</span>
+    <button type="button" id="audioPreviewCancel" title="Kaldır"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+  </div>
+  <div class="chatFooterRow">
+   <div class="composer">
+    <input type="text" id="chatMsg" placeholder="Mesajını yaz…" maxlength="500" autocomplete="off">
+    <button type="button" class="btn ghost icoBtn" id="chatImgBtn" title="Fotoğraf ekle"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+    <input type="file" id="chatImgInput" accept="image/*" style="display:none">
+    <button type="button" class="btn ghost icoBtn" id="chatMicBtn" title="Sesli mesaj kaydet"><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
+   </div>
+    <button type="button" class="sendBtn" id="chatSendBtn" title="Gönder" aria-label="Gönder"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
+  </div>
+</footer>
+
+<div class="modal" id="sendModal">
+  <div class="box">
+    <h2>Listeyi Gönder</h2>
+    <label>WhatsApp numarası (ülke kodu ile, örn. 905321234567)</label>
+    <input type="tel" id="phone" placeholder="905xxxxxxxxx">
+    <label>Gönderilecek liste</label>
+    <select id="scope">
+      <option value="both">Her iki liste</option>
+      <option value="pazar">Sadece PAZAR</option>
+      <option value="market">Sadece MARKET</option>
+    </select>
+    <label>Önizleme</label>
+    <pre class="prev" id="prev"></pre>
+    <div class="acts">
+      <button class="btn primary" id="waBtn">WhatsApp</button>
+      <button class="btn" id="copyBtn">Kopyala</button>
+      <button class="btn ghost" id="closeSend">Kapat</button>
+    </div>
+    <div class="hint">WhatsApp açılmazsa "Kopyala" ile metni alıp sohbete yapıştırabilirsiniz.</div>
+  </div>
+</div>
+
+<div class="modal" id="printModal">
+  <div class="box">
+    <h2>PDF Al️</h2>
+    <label>Hangi liste yazdırılsın?</label>
+    <select id="printScope">
+      <option value="both">Her iki liste</option>
+      <option value="pazar">Sadece PAZAR</option>
+      <option value="market">Sadece MARKET</option>
+    </select>
+    <div class="acts">
+      <button class="btn primary" id="printGo">Devam Et</button>
+      <button class="btn ghost" id="closePrint">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="addModal">
+  <div class="box">
+    <h2>Yeni Ürün Ekle</h2>
+    <label>Ürün adı</label>
+    <input type="text" id="newName" placeholder="Örn. KARNABAHAR">
+    <label>Miktar</label>
+    <input type="text" id="newQty" placeholder="Örn. 3 KG">
+    <label>Hangi liste?</label>
+    <select id="newList">
+      <option value="pazar">PAZAR</option>
+      <option value="market">MARKET</option>
+    </select>
+    <div class="acts">
+      <button class="btn primary" id="saveNew">Ekle</button>
+      <button class="btn ghost" id="closeAdd">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="histModal">
+  <div class="box">
+    <h2 id="histTitle">Geçmişe Kaydet</h2>
+    <p class="sumTxt" id="histSum"></p>
+    <label>Not (isteğe bağlı)</label>
+    <input type="text" id="histNote" maxlength="60" placeholder="">
+    <div class="acts">
+      <button class="btn primary" id="histSave">Kaydet</button>
+      <button class="btn" id="histSaveClear">Kaydet ve Temizle</button>
+      <button class="btn ghost" id="histCancel">Vazgeç</button>
+    </div>
+    <div class="hint" id="histHint"></div>
+  </div>
+</div>
+
+<div class="modal" id="profModal">
+  <div class="box">
+    <h2>Profilimi Düzenle</h2>
+    <div class="agRow2">
+      <div><label>Ad</label><input type="text" id="pAd" maxlength="30" autocomplete="given-name"></div>
+      <div><label>Soyad</label><input type="text" id="pSoyad" maxlength="30" autocomplete="family-name"></div>
+    </div>
+    <label>Kullanıcı adı</label>
+    <input type="text" id="pKa" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="harf, rakam, . veya _">
+    <div class="pSep"></div>
+    <div class="pNote">Şifreni değiştirmek istemiyorsan aşağıdaki alanları boş bırak.</div>
+    <label>Mevcut şifre</label>
+    <input type="password" id="pEski" autocomplete="current-password">
+    <label>Yeni şifre <i style="opacity:.7;font-style:normal">(en az 6 karakter)</i></label>
+    <input type="password" id="pYeni" autocomplete="new-password">
+    <label>Yeni şifre tekrar</label>
+    <input type="password" id="pYeni2" autocomplete="new-password">
+    <div id="profErr"></div>
+    <div class="acts">
+      <button class="btn primary" id="profKaydet" type="button">Kaydet</button>
+      <button class="btn ghost" id="profKapat" type="button">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<div class="modal" id="imgModal">
+  <div class="box imgBox">
+    <img id="imgModalPic" alt="Fotoğraf">
+    <div class="acts"><button class="btn ghost" id="closeImgModal">Kapat</button></div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>if(!window.firebase){ window.internetYok&&internetYok(); }</script>
+<script type="text/plain" id="appKod">
+(function(){
+  "use strict";
+
+  var BASE = {
+    pazar: [
+      ["PEYNİR ( SULU )","8 KG"],["SİYAH ZEYTİN","4 KG"],["TURŞU ZEYTİN","1 KG"],
+      ["ZEYTİN YAĞ","1 TENEKE"],["BÜYÜK SOĞAN","7 KG"],["KÜÇÜK SOĞAN","5 KG"],
+      ["BÜYÜK PATATES","16 KG"],["KÜÇÜK PATATES","5 KG"],["SARIMSAK","1 KG"],
+      ["MEYVE ( ÜZÜM )","10 KG"],["DOMATES","10 KG"],["SALATALIK","5 KG"],
+      ["SARI BİBER","6 KG"],["HAVUÇ","1 KG"],["PIRASA","10 KG"],["TAZE FASÜLYE","6 KG"],
+      ["LİMON","1 KG"],["LOR PEYNİR ( KAHVALTILIK )","500 GR"],["LOR PEYNİR ( BÖREKLİK )","500 GR"],
+      ["MARUL","3 ADET"],["ROKA","1 BAĞ"],["MAYDANOZ","2 BAĞ"],["DEREOTU","1 BAĞ"],
+      ["KARA LAHANA","2 ADET"],["PATLICAN","15 KG"],["ISPANAK","10 KG"],["KİMYON","500 GR"],
+      ["KARABİBER","500 GR"],["TATLI PUL BİBER","1000 GR"],["KIRMIZI TOZ BİBER","500 GR"],
+      ["KEKİK","100 GR"],["KIZARTMALIK KABAK","2 KG"],["SALÇALIK KIRMIZI BİBER","10 KG"],
+      ["KIYMA ( NORMAL )","4 KG"],["ET ( KUŞBAŞI )","4 KG"],["YOĞURT","4 ADET"],
+      ["TAVUK ( İNCİK )","20 ADET"]
+    ],
+    market: [
+      ["PEYNİR ( VAKUMLU )","7 KG"],["LEĞEN HELVA ( KARE ! )","1 ADET"],
+      ["PİRİNÇ (TORUN OSMANCIK)","20 KG"],["BULGUR","3 KG"],["ARPA ŞEHRİYE","5 KG"],
+      ["KIRMIZI MERCİMEK","3 KG"],["KEMALPAŞA (GÜVENAL)","5 PAKET"],["TEL KADAYIF","5 PAKET"],
+      ["TAHİN (ERTUĞRUL)","1 KG"],["PEKMEZ","2 KG"],["SU 0,5 LT 12 Lİ PAKET ( SULTAN )","10 KOLİ"],
+      ["PEÇETE (TENO)","2 PAKET"],["PAKET PİKNİK ÇİKOLATA","1 KOLİ"],["PAKET PİKNİK BAL","1 KOLİ"],
+      ["PAKET PİKNİK PEKMEZ","1 KOLİ"],["UN","5 KG"],["KURU FASÜLYE ( KİLOLUK )","3 KG"],
+      ["BEYAZ NOHUT ( BÜYÜK TANELİ )","3 KG"],["BURGU MAKARNA ( KARTAL )","5 KG"],
+      ["SPAGETTİ","5 PAKET"],["BEZELYE (TAT)","2 ADET"],["PİKNİK ÇİLEK REÇELİ","1 PAKET"],
+      ["TAVUK BULYON ( BİZİM KOVA )","5 KG"],["PRİL ( 4LT )","3 ADET"],["YAĞ TEMİZLEYİCİ","1 ADET"],
+      ["PORÇÖZ ( 4 LT. BİDON )","1 BİDON"],["SADE SODA","1 KOLİ"],["MISIR UNU","1 PAKET"],
+      ["KÖFTE HARCI","5 PAKET"],["A4 KAĞIDI","5 PAKET"],["MANGAL KÖMÜRÜ","4 PAKET"],
+      ["ÇAMAŞIR MAKİNASI DETERJANI 15 KG","1 ADET"],["HAVLU PEÇETE 12'Lİ","1 ADET"],
+      ["TUZ (ASAF)","2 PAKET"],["TOZ ŞEKER","20 KG"],["KÜP ŞEKER","2 PAKET"],
+      ["BULAŞIK SÜNGERİ","5 ADET"],["YÜZEY TEMİZLEYİCİ ( BİNGO MASAL )","1 ADET"],
+      ["TEK KREM DETERJAN","1 ADET"],["DOMESTOS ( 4 LT BİDON )","1 ADET"],["CAMSİL","3 ADET"],
+      ["YUMUŞATICI (5T.)","1 ADET (3,2 LT.)"],["SÜTLÜ DİBEK KAHVESİ","2 PAKET"],
+      ["TÜRK KAHVESİ ( BİRBEN )","5 PAKET"],["ACE (4LT.)","1 ADET"],
+      ["JUMBO ÇÖP POŞETİ ( KOROPLAST ! )","3 PAKET"],["SAF ÜZÜM SİRKESİ ( TARİŞ )","4 LT"],
+      ["CERRAHİ ELDİVEN ( S & M )","1 PAKET"],["CERRAHİ MASKE","1 PAKET"],["YUMURTA","75 ADET"],
+      ["MİKROFİBER TEMİZLİK BEZİ 4 LÜ","5 ADET"],["BÜYÜK BOY ÇÖP POŞETİ","4 ADET"],
+      ["SANA YAĞ","3 ADET"],["SIVI YAĞ ( KULA )","1 TENEKE"],
+      ["SIVI EL SABUNU ( DURU ZEYTİN YAĞLI )","2 ADET"],["SALÇA YEMEKLİK","5 KG (1 ADET)"],
+      ["ÇAY ( DOĞUŞ )","1 KOLİ"],["NESCAFE 2.1 ARADA","20 ADET"],["NESCAFE 3.1 ARADA","20 ADET"]
+    ]
+  };
+
+  var KEY = "alisveris_v1";
+  var state = { pazar:{}, market:{}, extra:{pazar:[],market:[]}, phone:"" };
+  var tab = "pazar";
+
+  /* ============ CANLI BAĞLANTI (Firebase) ============
+     Kullanmak için: console.firebase.google.com adresinden ücretsiz bir
+     proje aç, Realtime Database ekle (test modunda), "Project settings"
+     > "Web app" içindeki config nesnesini aşağıya yapıştır.
+     Boş bırakırsan site normal şekilde, sadece bu telefonda çalışmaya
+     devam eder — hiçbir şey bozulmaz.                                    */
+  var firebaseConfig = {
+    apiKey: "AIzaSyCF8WUjQmbWT-EuR7fn_jOJ-indB6-kRQ8",
+    databaseURL: "https://feyzanur-9b274-default-rtdb.firebaseio.com",
+    projectId: "feyzanur-9b274"
+  };
+  var fbReady = false, fbRef = null, fbApplying = false;
+  try{
+    if(firebaseConfig.apiKey && firebaseConfig.databaseURL && window.firebase){
+      fbRef = firebase.database().ref("alisveris_listesi/durum");
+      fbReady = true;
+    }
+  }catch(e){ fbReady = false; }
+
+  /* ============ GİRİŞ LOGLAMA ============
+     Her açılışta cihaza özel bir kimlik (ilk seferde üretilir, o telefonda
+     kalıcı kalır) ve tarih/saat Firebase'e yazılır. Kontrol paneli
+     (admin.html) bu kayıtları okur.                                        */
+  function cihazId(){ return window.__uid || "bilinmeyen"; }
+  function girisiLogla(){
+    if(!fbReady) return;
+    try{
+      var d = new Date();
+      function p(n){return n<10?"0"+n:""+n;}
+      var tarihSaat = p(d.getDate())+"."+p(d.getMonth()+1)+"."+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes());
+      firebase.database().ref("alisveris_listesi/loglar").push({
+        cihaz: cihazId(),
+        tarihSaat: tarihSaat,
+        zaman: d.getTime()
+      });
+    }catch(e){}
+  }
+  function degisikligiLogla(urun, liste, islem){
+    if(!fbReady) return;
+    try{
+      var d = new Date();
+      function p(n){return n<10?"0"+n:""+n;}
+      var tarihSaat = p(d.getDate())+"."+p(d.getMonth()+1)+"."+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes());
+      firebase.database().ref("alisveris_listesi/degisiklikler").push({
+        cihaz: cihazId(), urun: urun, liste: liste, islem: islem,
+        tarihSaat: tarihSaat, zaman: d.getTime()
+      });
+    }catch(e){}
+  }
+
+  /* ============ SOHBET ============ */
+  var sohbetRef = null;
+  if(fbReady){
+    try{ sohbetRef = firebase.database().ref("alisveris_listesi/sohbet").limitToLast(200); }catch(e){}
+  }
+  var currentView = "liste";
+  var lastSohbetSnapshot = [];
+  var sonBilinenMesajSayisi = null;
+
+  function bipCal(){
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      var ctx = new Ctx();
+      var osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.32);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime+0.33);
+      setTimeout(function(){ try{ ctx.close(); }catch(e){} }, 500);
+    }catch(e){}
+  }
+
+  function yeniMesajBildirimVer(m){
+    bipCal();
+    if(navigator.vibrate) try{ navigator.vibrate([180,80,180]); }catch(e){}
+    var baslik = (m.isim||"Biri") + " mesaj gönderdi";
+    var govde = m.mesaj || (m.resim ? "📷 Fotoğraf gönderdi" : (m.ses ? "🎤 Sesli mesaj gönderdi" : ""));
+    var NB = nativBld();
+    if(document.hidden && NB && NB.LocalNotifications){
+      try{ NB.LocalNotifications.schedule({notifications:[{id: Math.floor(Date.now()%2000000000), title: baslik, body: govde || " "}]}); }catch(e){}
+    } else if(document.hidden && window.Notification && Notification.permission === "granted"){
+      try{ new Notification(baslik, {body: govde, icon: "❤️"}); }catch(e){}
+    } else if(!document.hidden){
+      toast("💬 "+baslik+(govde ? ": "+govde : ""));
+    }
+  }
+
+  function bildirimDurumGuncelle(){
+    var b = document.getElementById("bildirimBtn");
+    if(!b) return;
+    var NB = nativBld();
+    if(NB && NB.LocalNotifications){
+      NB.LocalNotifications.checkPermissions().then(function(r){
+        var d = r && r.display;
+        if(d === "granted"){ b.innerHTML = '<i class="fa-solid fa-bell ic" aria-hidden="true"></i>Bildirimler Açık'; b.disabled = true; }
+        else if(d === "denied"){ b.innerHTML = '<i class="fa-solid fa-bell-slash ic" aria-hidden="true"></i>Bildirim engellendi'; b.disabled = true; }
+        else { b.innerHTML = '<i class="fa-solid fa-bell ic" aria-hidden="true"></i>Bildirimleri Aç'; b.disabled = false; }
+      }).catch(function(){});
+      return;
+    }
+    if(!window.Notification){ b.style.display = "none"; return; }
+    if(Notification.permission === "granted"){ b.innerHTML = '<i class="fa-solid fa-bell ic" aria-hidden="true"></i>Bildirimler Açık'; b.disabled = true; }
+    else if(Notification.permission === "denied"){ b.innerHTML = '<i class="fa-solid fa-bell-slash ic" aria-hidden="true"></i>Bildirim engellendi'; b.disabled = true; }
+    else { b.innerHTML = '<i class="fa-solid fa-bell ic" aria-hidden="true"></i>Bildirimleri Aç'; b.disabled = false; }
+  }
+  var chatNameEl, chatMsgEl, chatMsgsEl, chatSendBtn;
+  var replyingTo = null, replyPreviewRow, replyPreviewText, replyPreviewCancel;
+  var oncekiMesajSayisi = 0;
+  var yeniBegenilenler = {}; // key -> true, kısa süreliğine animasyon için
+
+  function sohbetGorulenYukle(){
+    try{ return parseInt(localStorage.getItem("sohbet_gorulen")||"0",10); }catch(e){ return 0; }
+  }
+  function sohbetGorulenKaydet(n){
+    try{ localStorage.setItem("sohbet_gorulen", String(n)); }catch(e){}
+  }
+  function tarihSaatUret(){
+    var d=new Date();
+    function p(n){return n<10?"0"+n:""+n;}
+    return p(d.getDate())+"."+p(d.getMonth()+1)+"."+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes());
+  }
+
+  /* "Benden sil": mesaj yalnızca bu KULLANICININ ekranından gizlenir.
+     Liste kullanıcının kendi kaydında (kullanicilar/UID/ayarlar/gizliMesajlar)
+     tutulur; hangi telefondan girerse girsin aynı kalır. Diğerleri görmeye devam eder. */
+  function gizlileriYukle(){ return Object.keys(window.__gizli || {}); }
+  function mesajBenimIcinGizle(key){
+    window.__gizli = window.__gizli || {};
+    window.__gizli[key] = true;
+    try{ firebase.database().ref("kullanicilar/"+cihazId()+"/ayarlar/gizliMesajlar/"+key).set(true).catch(function(er){ alert("Silme kaydedilemedi, sayfa yenilenince mesaj geri gelebilir: "+((er&&er.message)||er)); }); }catch(e){}
+    lastSohbetSnapshot = lastSohbetSnapshot.filter(function(m){ return m._key !== key; });
+    renderChat();
+  }
+  var COP_SVG = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i>';
+  function copButonuYap(k, herkestenAcik){
+    var wrap = document.createElement("span");
+    wrap.style.position = "relative";
+    wrap.style.display = "inline-flex";
+    var btn = document.createElement("button");
+    btn.className = "delBtn"; btn.type = "button"; btn.title = "Mesajı sil";
+    btn.innerHTML = COP_SVG;
+    var menu = document.createElement("div");
+    menu.className = "delMenu";
+    var m1 = document.createElement("button"); m1.type = "button";
+    m1.innerHTML = "<span></span> Benden sil";
+    m1.addEventListener("click", function(){
+      menu.classList.remove("show");
+      if(!confirm("Bu mesaj yalnızca SENİN ekranından silinsin mi?\n(Diğerlerinde görünmeye devam eder)")) return;
+      mesajBenimIcinGizle(k._key);
+    });
+    menu.appendChild(m1);
+    if(herkestenAcik){
+      var m2 = document.createElement("button"); m2.type = "button"; m2.className = "herkesten";
+      m2.innerHTML = "<span></span> Herkesten sil";
+      m2.addEventListener("click", function(){
+        menu.classList.remove("show");
+        if(!confirm("Bu mesaj HERKESİN ekranından silinsin mi?")) return;
+        if(sohbetRef) firebase.database().ref("alisveris_listesi/sohbet/"+k._key).update({
+          silindi:true, mesaj:null, resim:null, yanit:null, begeniler:null, ses:null
+        });
+      });
+      menu.appendChild(m2);
+    }
+    btn.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      var acikMi = menu.classList.contains("show");
+      Array.prototype.forEach.call(document.querySelectorAll(".delMenu.show"), function(p2){ p2.classList.remove("show"); });
+      if(!acikMi){
+        menu.classList.add("show");
+        // Menü ekranın dışına taşıyorsa içeri kaydır
+        menu.style.right = "8px";
+        var wr = wrap.getBoundingClientRect();
+        var mw = menu.offsetWidth;
+        var vw = document.documentElement.clientWidth;
+        var solKenar = wr.right - 8 - mw;
+        var kayma = 0;
+        if(solKenar < 8) kayma = 8 - solKenar;                 // sağa kaydır
+        else if(solKenar + mw > vw - 8) kayma = (vw - 8) - (solKenar + mw); // sola kaydır
+        if(kayma) menu.style.right = (8 - kayma) + "px";
+      }
+    });
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    return wrap;
+  }
+
+  function refreshSohbetBadge(){
+    var total = lastSohbetSnapshot.length;
+    var fark = Math.max(0, total - sohbetGorulenYukle());
+    var b1 = document.getElementById("menuBadge");
+    var b2 = document.getElementById("sohbetItemBadge");
+    if(fark>0 && currentView!=="sohbet"){
+      b1.style.display="flex"; b1.textContent = fark>9?"9+":fark;
+      b2.style.display="flex"; b2.textContent = fark>9?"9+":fark;
+    } else {
+      b1.style.display="none"; b2.style.display="none";
+    }
+  }
+  function sohbetGoruldu(){
+    sohbetGorulenKaydet(lastSohbetSnapshot.length);
+    refreshSohbetBadge();
+  }
+
+  function htmlKac(s){
+    var d = document.createElement("div"); d.textContent = s||""; return d.innerHTML;
+  }
+  var AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  function yazarHue(isim){
+    var t = (isim||"İsimsiz").trim().toLocaleLowerCase("tr");
+    var x = 2166136261;
+    for(var i=0;i<t.length;i++){ x ^= t.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; }
+    return x % 360;
+  }
+  function mesajTarihi(k){
+    if(k.zaman) return new Date(k.zaman);
+    var m = /^(\d{2})\.(\d{2})\.(\d{4})/.exec(k.tarihSaat||"");
+    return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+  }
+  function gunEtiketi(d){
+    var b = new Date();
+    var t0 = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+    var d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var fark = Math.round((t0 - d0) / 86400000);
+    if(fark === 0) return "Bugün";
+    if(fark === 1) return "Dün";
+    var s = d.getDate() + " " + AYLAR[d.getMonth()];
+    if(d.getFullYear() !== b.getFullYear()) s += " " + d.getFullYear();
+    return s;
+  }
+  function renderChat(){
+    if(!chatMsgsEl) return;
+    var myId = cihazId();
+    if(!lastSohbetSnapshot.length){
+      chatMsgsEl.innerHTML = '<div class="empty">Henüz mesaj yok. İlk mesajı sen yaz! 💬</div>';
+      oncekiMesajSayisi = 0;
+      return;
+    }
+    chatMsgsEl.innerHTML = "";
+    var eskiSayi = oncekiMesajSayisi;
+    var yeniAdet = eskiSayi>0 ? Math.max(0, lastSohbetSnapshot.length - eskiSayi) : 0;
+    var oncekiGun = null;
+    var oncekiYazar = null;
+    lastSohbetSnapshot.forEach(function(k, idx){
+      var mine = k.cihaz === myId;
+      var md = mesajTarihi(k);
+      if(md){
+        var gunKey = md.getFullYear()+"-"+md.getMonth()+"-"+md.getDate();
+        if(gunKey !== oncekiGun){
+          oncekiGun = gunKey;
+          oncekiYazar = null; // yeni günde avatar yeniden çıksın
+          var ay = document.createElement("div");
+          ay.className = "gunAyrac"; ay.textContent = gunEtiketi(md);
+          chatMsgsEl.appendChild(ay);
+        }
+      }
+      var div = document.createElement("div");
+      div.className = "msg" + (mine ? " mine" : "");
+      if(idx >= lastSohbetSnapshot.length - yeniAdet){
+        div.classList.add("animate__animated","animate__fadeInUp");
+        div.style.setProperty("--animate-duration",".35s");
+      }
+      var yazarKey = k.cihaz || k.isim || "";
+      var ilkMesaj = (yazarKey !== oncekiYazar);
+      if(!ilkMesaj) div.classList.add("devam");
+      if(ilkMesaj){
+        var tl = document.createElement("span");
+        tl.className = "tail"; tl.setAttribute("aria-hidden","true");
+        tl.innerHTML = '<svg viewBox="0 0 10 14" width="10" height="14">'
+          + '<path class="tf" d="M10,0.5H4.5C2.3,0.5 1.3,2.18 2.2,3.3L10,13.03Z"/>'
+          + '<path class="tb" d="M10,0.5H4.5C2.3,0.5 1.3,2.18 2.2,3.3L9.5,12.4V14"/></svg>';
+        div.appendChild(tl);
+      }
+      if(!mine && ilkMesaj){
+        var av = document.createElement("div");
+        av.className = "msgAv"; av.setAttribute("aria-hidden","true");
+        av.textContent = (Array.from((k.isim||"İsimsiz").trim())[0] || "?").toLocaleUpperCase("tr");
+        div.appendChild(av);
+      }
+      oncekiYazar = yazarKey;
+      var who = document.createElement("div");
+      who.className="who"; who.textContent = mine ? "Siz" : (k.isim || "İsimsiz");
+      if(!mine) who.style.setProperty("--wh", yazarHue(k.isim));
+      div.appendChild(who);
+      if(k.silindi){
+        var silinmis = document.createElement("div");
+        silinmis.className = "silinmisMsg";
+        silinmis.innerHTML = '<i class="fa-solid fa-ban ic" aria-hidden="true"></i>Bu mesaj silindi';
+        div.appendChild(silinmis);
+        var metaSil = document.createElement("div");
+        metaSil.className="meta";
+        var timeSil = document.createElement("span");
+        timeSil.className="time"; timeSil.textContent = k.tarihSaat || "";
+        metaSil.appendChild(timeSil);
+        metaSil.appendChild(copButonuYap(k, false));
+        div.appendChild(metaSil);
+        chatMsgsEl.appendChild(div);
+        return;
+      }
+      if(k.yanit){
+        var q = document.createElement("div");
+        q.className = "quote";
+        q.innerHTML = "<b>"+htmlKac(k.yanit.isim)+"</b>: "+htmlKac(k.yanit.mesaj);
+        div.appendChild(q);
+      }
+      if(k.resim){
+        var img = document.createElement("img");
+        img.className = "chatImg"; img.src = k.resim; img.alt = "Fotoğraf";
+        img.addEventListener("click", function(){
+          document.getElementById("imgModalPic").src = k.resim;
+          document.getElementById("imgModal").classList.add("show");
+        });
+        div.appendChild(img);
+      }
+      if(k.mesaj){
+        var txt = document.createElement("div");
+        txt.className="txt"; txt.textContent = k.mesaj;
+        div.appendChild(txt);
+      }
+      if(k.ses){
+        var ses = document.createElement("audio");
+        ses.controls = true; ses.src = k.ses;
+        div.appendChild(ses);
+      }
+      var meta = document.createElement("div");
+      meta.className="meta";
+      var reply = document.createElement("button");
+      reply.className="replyBtn"; reply.innerHTML='<i class="fa-solid fa-reply ic" aria-hidden="true"></i>Yanıtla';
+      reply.addEventListener("click", function(){
+        replyingTo = {
+          isim: k.isim || "İsimsiz",
+          mesaj: k.mesaj ? (k.mesaj.length>80 ? k.mesaj.slice(0,80)+"…" : k.mesaj) : (k.resim ? "📷 Fotoğraf" : "")
+        };
+        replyPreviewText.innerHTML = '<i class="fa-solid fa-reply ic" aria-hidden="true"></i>' + "<b>"+htmlKac(replyingTo.isim)+"</b>: "+htmlKac(replyingTo.mesaj);
+        replyPreviewRow.style.display = "flex";
+        altBosluguAyarla("sohbet");
+        chatMsgEl.focus();
+      });
+      meta.appendChild(reply);
+
+      var REAKSIYONLAR = ["❤️","👍","😂","😮","😢"];
+      var begeniler = k.begeniler || {};
+      var sayaclar = {}, benimReaksiyonum = null;
+      Object.keys(begeniler).forEach(function(uid){
+        var deger = begeniler[uid];
+        var emoji = (deger === true) ? "❤️" : deger; // eski veri (true) ile uyumluluk
+        sayaclar[emoji] = (sayaclar[emoji]||0) + 1;
+        if(uid === myId) benimReaksiyonum = emoji;
+      });
+
+      var react = document.createElement("button");
+      react.className = "likeBtn" + (benimReaksiyonum ? " liked" : "");
+      var burstNow = !!yeniBegenilenler[k._key];
+      react.innerHTML = '<span class="heartIco'+(burstNow?" burst":"")+'">'+(benimReaksiyonum || "🤍")+'</span>';
+      if(burstNow) delete yeniBegenilenler[k._key];
+
+      var picker = document.createElement("div");
+      picker.className = "reactPicker";
+      REAKSIYONLAR.forEach(function(emoji){
+        var eb = document.createElement("button");
+        eb.type = "button"; eb.textContent = emoji;
+        if(emoji === benimReaksiyonum) eb.classList.add("secili");
+        eb.addEventListener("click", function(ev){
+          ev.stopPropagation();
+          var ref = firebase.database().ref("alisveris_listesi/sohbet/"+k._key+"/begeniler/"+myId);
+          if(benimReaksiyonum === emoji){ ref.remove(); }
+          else { yeniBegenilenler[k._key] = true; ref.set(emoji); }
+          picker.classList.remove("show");
+        });
+        picker.appendChild(eb);
+      });
+      react.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        var acikMi = picker.classList.contains("show");
+        Array.prototype.forEach.call(document.querySelectorAll(".reactPicker.show"), function(p){ p.classList.remove("show"); });
+        if(!acikMi) picker.classList.add("show");
+      });
+      meta.appendChild(react);
+      div.appendChild(picker);
+
+      if(Object.keys(sayaclar).length){
+        var rozetler = document.createElement("div");
+        rozetler.className = "reactRozetleri";
+        Object.keys(sayaclar).forEach(function(emoji){
+          var r = document.createElement("span");
+          r.className = "reactRozet" + (emoji===benimReaksiyonum ? " benim" : "");
+          r.textContent = emoji + " " + sayaclar[emoji];
+          rozetler.appendChild(r);
+        });
+        div.appendChild(rozetler);
+      }
+      var time = document.createElement("span");
+      time.className="time"; time.textContent = k.tarihSaat || "";
+      meta.appendChild(time);
+      meta.appendChild(copButonuYap(k, mine && k.zaman && (Date.now() - k.zaman) < 172800000));
+      div.appendChild(meta);
+      chatMsgsEl.appendChild(div);
+    });
+    var yeniMesajGeldi = lastSohbetSnapshot.length > oncekiMesajSayisi;
+    oncekiMesajSayisi = lastSohbetSnapshot.length;
+    if(yeniMesajGeldi){
+      var lastMsg = chatMsgsEl.lastElementChild;
+      if(lastMsg){ lastMsg.scrollIntoView({block:"end", behavior:"smooth"}); }
+    }
+  }
+
+  function sohbetGonder(){
+    var isim = (chatNameEl.value||"").trim();
+    var mesaj = (chatMsgEl.value||"").trim();
+    if(!isim){ alert("Lütfen önce adını yaz."); chatNameEl.focus(); return; }
+    if(!mesaj && !pendingImage && !pendingAudio) return;
+    try{ localStorage.setItem("sohbet_isim", isim); }catch(e){}
+    if(!fbReady || !sohbetRef){ alert("Canlı bağlantı yok, mesaj gönderilemiyor."); return; }
+    var payload = {
+      isim: isim, cihaz: cihazId(),
+      tarihSaat: tarihSaatUret(), zaman: new Date().getTime()
+    };
+    if(mesaj) payload.mesaj = mesaj;
+    if(pendingImage) payload.resim = pendingImage;
+    if(pendingAudio) payload.ses = pendingAudio;
+    if(replyingTo) payload.yanit = replyingTo;
+    firebase.database().ref("alisveris_listesi/sohbet").push(payload);
+    chatMsgEl.value = "";
+    resimSecimiTemizle();
+    sesSecimiTemizle();
+    yanitTemizle();
+    chatMsgEl.focus();
+  }
+  function yanitTemizle(){
+    replyingTo = null;
+    if(replyPreviewRow) replyPreviewRow.style.display = "none";
+    if(currentView === "sohbet") altBosluguAyarla("sohbet");
+  }
+
+  /* ---- sohbet: fotoğraf ekleme ---- */
+  var pendingImage = null;
+  var chatImgBtn, chatImgInput, imgPreviewRow, imgPreviewThumb, imgPreviewName, imgPreviewCancel;
+
+  function resimSikistir(file, cb){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxW = 1000;
+        var scale = Math.min(1, maxW / img.width);
+        var w = Math.max(1, Math.round(img.width * scale));
+        var h = Math.max(1, Math.round(img.height * scale));
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        var quality = 0.72;
+        var dataUrl = canvas.toDataURL("image/jpeg", quality);
+        while(dataUrl.length > 700000 && quality > 0.35){
+          quality -= 0.1;
+          dataUrl = canvas.toDataURL("image/jpeg", quality);
+        }
+        cb(dataUrl);
+      };
+      img.onerror = function(){ cb(null); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ cb(null); };
+    reader.readAsDataURL(file);
+  }
+
+  function resimSecimiTemizle(){
+    pendingImage = null;
+    if(imgPreviewRow) imgPreviewRow.style.display = "none";
+    if(imgPreviewThumb) imgPreviewThumb.src = "";
+    if(currentView === "sohbet") altBosluguAyarla("sohbet");
+  }
+
+  /* ---- sohbet: sesli mesaj ---- */
+  var pendingAudio = null;
+  var chatMicBtn, audioPreviewRow, audioPreviewSure, audioPreviewCancel;
+  var kayitAktif = false, mediaRecorder = null, kayitParcalari = [], kayitBaslangic = 0, kayitZamanlayici = null, kayitStream = null;
+  var KAYIT_MAX_SN = 60;
+
+  function sureFormat(sn){
+    var d = Math.floor(sn/60), s = sn%60;
+    return d + ":" + (s<10 ? "0"+s : s);
+  }
+
+  function kaydiBaslat(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      alert("Bu tarayıcı ses kaydını desteklemiyor.");
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      kayitStream = stream;
+      kayitParcalari = [];
+      try{ mediaRecorder = new MediaRecorder(stream); }
+      catch(e){ alert("Ses kaydı başlatılamadı."); return; }
+      mediaRecorder.addEventListener("dataavailable", function(e){
+        if(e.data && e.data.size>0) kayitParcalari.push(e.data);
+      });
+      mediaRecorder.addEventListener("stop", function(){
+        stream.getTracks().forEach(function(t){ t.stop(); });
+        var sureSn = Math.round((Date.now()-kayitBaslangic)/1000);
+        if(!kayitParcalari.length || sureSn < 1) return;
+        var blob = new Blob(kayitParcalari, {type: mediaRecorder.mimeType || "audio/webm"});
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var dataUrl = e.target.result;
+          if(dataUrl.length > 900000){
+            alert("Ses kaydı çok uzun/büyük oldu, daha kısa bir kayıt dene.");
+            return;
+          }
+          pendingAudio = dataUrl;
+          audioPreviewSure.textContent = sureFormat(sureSn);
+          audioPreviewRow.style.display = "flex";
+          altBosluguAyarla("sohbet");
+        };
+        reader.readAsDataURL(blob);
+      });
+      mediaRecorder.start();
+      kayitAktif = true;
+      kayitBaslangic = Date.now();
+      chatMicBtn.classList.add("recording");
+      chatMicBtn.innerHTML = '<span class="recDot"></span><span class="recTime">0:00</span>';
+      kayitZamanlayici = setInterval(function(){
+        var sn = Math.round((Date.now()-kayitBaslangic)/1000);
+        var rt = chatMicBtn.querySelector(".recTime");
+        if(rt) rt.textContent = sureFormat(sn);
+        if(sn >= KAYIT_MAX_SN) kaydiDurdur();
+      }, 500);
+    }).catch(function(){
+      alert("Mikrofon izni verilmedi.");
+    });
+  }
+
+  function kaydiDurdur(){
+    if(!kayitAktif) return;
+    kayitAktif = false;
+    clearInterval(kayitZamanlayici);
+    chatMicBtn.classList.remove("recording");
+    chatMicBtn.innerHTML = '<i class="fa-solid fa-microphone" aria-hidden="true"></i>';
+    if(mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+  }
+
+  function sesSecimiTemizle(){
+    pendingAudio = null;
+    if(audioPreviewRow) audioPreviewRow.style.display = "none";
+    if(currentView === "sohbet") altBosluguAyarla("sohbet");
+  }
+
+  function setLive(on){
+    var dot = document.getElementById("liveDot"), lbl = document.getElementById("liveLabel");
+    if(!dot) return;
+    dot.className = on ? "on" : "";
+    lbl.textContent = on ? "Canlı bağlı" : "Canlı bağlantı yok";
+  }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(raw){
+        var d = JSON.parse(raw);
+        if(d && typeof d === "object"){
+          state.pazar = d.pazar || {};
+          state.market = d.market || {};
+          state.extra = d.extra || {pazar:[],market:[]};
+          state.extra.pazar = state.extra.pazar || [];
+          state.extra.market = state.extra.market || [];
+          state.phone = d.phone || "";
+        }
+      }
+    }catch(e){ /* depolama yoksa boş başla */ }
+  }
+  function save(){
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+    if(fbReady && !fbApplying){
+      fbRef.set(state).catch(function(){});
+    }
+  }
+
+  /* ---- varsayılan liste: veri tabanında varsa oradan, yoksa BASE'den ---- */
+  var DEF_KEY = "alisveris_varsayilan_v1";
+  var DEF = null;
+  function defNorm(d){
+    if(!d || typeof d !== "object") return null;
+    var out = {};
+    ["pazar","market"].forEach(function(w){
+      var a = d[w];
+      if(a && !Array.isArray(a) && typeof a === "object") a = Object.keys(a).map(function(k){ return a[k]; });
+      out[w] = Array.isArray(a)
+        ? a.filter(function(x){ return x && x.id && typeof x.ad === "string"; })
+            .map(function(x){ return {id:String(x.id), ad:x.ad, miktar:String(x.miktar == null ? "" : x.miktar)}; })
+        : null;
+    });
+    return (out.pazar || out.market) ? out : null;
+  }
+  try{ DEF = defNorm(JSON.parse(localStorage.getItem(DEF_KEY) || "null")); }catch(e){ DEF = null; }
+  function defList(which){
+    if(DEF && DEF[which]) return DEF[which];
+    return BASE[which].map(function(x,i){ return {id:which+"_"+i, ad:x[0], miktar:x[1]}; });
+  }
+
+  function items(which){
+    var out = defList(which).map(function(x){
+      var s = state[which][x.id];
+      var name = (s && s.n) ? s.n : x.ad;
+      return {id:x.id, name:name, def:x.miktar};
+    });
+    state.extra[which].forEach(function(x,i){
+      out.push({id:which+"_x"+i, name:x.name, def:x.qty, custom:true, idx:i});
+    });
+    return out;
+  }
+  function rec(which,id){
+    var r = state[which][id];
+    if(!r){ r = state[which][id] = {c:false,q:null}; }
+    return r;
+  }
+  function counts(which){
+    var n=0; items(which).forEach(function(it){ if(state[which][it.id] && state[which][it.id].c) n++; });
+    return n;
+  }
+
+  var listEl = document.getElementById("list");
+  var qEl = document.getElementById("q");
+  var sirali = false;
+
+  function render(stagger){
+    var term = qEl.value.trim().toLocaleUpperCase("tr");
+    var arr = items(tab).filter(function(it){
+      return !term || it.name.toLocaleUpperCase("tr").indexOf(term) > -1;
+    });
+    if(sirali){
+      arr = arr.map(function(it,i){ return {it:it, i:i, on: rec(tab,it.id).c}; })
+                .sort(function(a,b){ return (b.on - a.on) || (a.i - b.i); })
+                .map(function(w){ return w.it; });
+    }
+    listEl.innerHTML = "";
+    if(!arr.length){
+      listEl.innerHTML = '<div class="empty">Ürün bulunamadı.</div>';
+    }
+    arr.forEach(function(it, i){
+      var r = rec(tab,it.id);
+      var li = document.createElement("li");
+      li.className = "row" + (r.c ? " on" : "");
+      li.dataset.id = it.id;
+      if(stagger){ li.style.animationDelay = Math.min(i*20, 420)+"ms"; li.classList.add("rowIn"); }
+
+      var cb = document.createElement("input");
+      cb.type="checkbox"; cb.checked=!!r.c;
+      cb.addEventListener("change", function(){
+        var checking = cb.checked;
+        rec(tab,it.id).c = checking; save(); render();
+        degisikligiLogla(it.name, tab, checking ? "işaretledi" : "kaldırdı");
+        var newLi = listEl.querySelector('li[data-id="'+it.id+'"]');
+        if(newLi && checking){
+          newLi.classList.add("pop");
+          setTimeout(function(){ newLi.classList.remove("pop"); }, 300);
+        }
+      });
+
+      var nm = document.createElement("input");
+      nm.type="text"; nm.className="name"; nm.value = it.name;
+      nm.addEventListener("change", function(){
+        var val = nm.value.trim() || it.name;
+        if(it.custom){ state.extra[tab][it.idx].name = val; }
+        else { rec(tab,it.id).n = val; }
+        save(); render();
+      });
+
+      var qt = document.createElement("input");
+      qt.type="text"; qt.className="qty";
+      qt.value = (r.q === null || r.q === undefined) ? it.def : r.q;
+      qt.addEventListener("change", function(){
+        rec(tab,it.id).q = qt.value.trim() || it.def; save();
+      });
+
+      li.appendChild(cb); li.appendChild(nm); li.appendChild(qt);
+
+      if(it.custom){
+        var del = document.createElement("button");
+        del.className="del"; del.innerHTML='<i class="fa-solid fa-xmark" aria-hidden="true"></i>'; del.title="Sil";
+        del.addEventListener("click", function(){
+          state.extra[tab].splice(it.idx,1);
+          delete state[tab][it.id];
+          save(); render();
+        });
+        li.appendChild(del);
+      }
+      listEl.appendChild(li);
+    });
+    updateCounts();
+  }
+
+  var oncekiP = -1, oncekiM = -1;
+  function updateCounts(){
+    var p = counts("pazar"), m = counts("market");
+    var np=document.getElementById("nPazar"), nm=document.getElementById("nMarket");
+    np.textContent=p; nm.textContent=m;
+    np.className = "n" + (p?"":" zero"); nm.className = "n" + (m?"":" zero");
+    if(p!==oncekiP){ oncekiP=p; np.classList.remove("bump"); void np.offsetWidth; np.classList.add("bump"); }
+    if(m!==oncekiM){ oncekiM=m; nm.classList.remove("bump"); void nm.offsetWidth; nm.classList.add("bump"); }
+    document.getElementById("selCount").textContent = p+m;
+    document.getElementById("subCount").textContent = "Pazar "+p+" · Market "+m;
+  }
+
+  function selected(which){
+    return items(which).filter(function(it){
+      var r = state[which][it.id]; return r && r.c;
+    }).map(function(it){
+      var r = state[which][it.id];
+      return { name:it.name, qty:(r.q===null||r.q===undefined)?it.def:r.q };
+    });
+  }
+
+  function today(){
+    var d=new Date();
+    function p(n){return n<10?"0"+n:""+n;}
+    return p(d.getDate())+"."+p(d.getMonth()+1)+"."+d.getFullYear();
+  }
+
+  function buildText(scope){
+    var out = [], any=false;
+    function block(which,title){
+      var s = selected(which);
+      if(!s.length) return;
+      any=true;
+      out.push("*"+title+"* ("+s.length+" ürün)");
+      s.forEach(function(x){ out.push("• "+x.name+" — "+x.qty); });
+      out.push("");
+    }
+    out.push("🌸 *FEYZANUR – ALIŞVERİŞ LİSTESİ* – "+today());
+    out.push("");
+    if(scope!=="market") block("pazar","PAZAR LİSTESİ");
+    if(scope!=="pazar") block("market","MARKET LİSTESİ");
+    if(!any) out.push("(Hiç ürün işaretlenmedi)");
+    return out.join("\n").trim();
+  }
+
+  /* ---- sekmeler ---- */
+  Array.prototype.forEach.call(document.querySelectorAll("#listTabs .tab"), function(b){
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(document.querySelectorAll("#listTabs .tab"), function(x){x.classList.remove("on");});
+      b.classList.add("on"); tab=b.getAttribute("data-t"); render(true);
+      listEl.classList.remove("animate__fadeIn"); void listEl.offsetWidth;
+      listEl.classList.add("animate__animated","animate__fadeIn");
+    });
+  });
+  /* ---- sesli komutla ürün ekleme ---- */
+  qEl.addEventListener("input", render);
+  var sesliBtn = document.getElementById("sesliBtn");
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var NSR = nativBld() && nativBld().SpeechRecognition;
+  if(NSR){
+    var nDinliyor = false, nIcon = sesliBtn.innerHTML;
+    sesliBtn.addEventListener("click", function(){
+      if(nDinliyor) return;
+      nDinliyor = true;
+      var bitir = function(){ nDinliyor = false; sesliBtn.classList.remove("recording"); sesliBtn.innerHTML = nIcon; };
+      NSR.requestPermissions().then(function(p){
+        if(!p || p.speechRecognition !== "granted") throw new Error("izin");
+        sesliBtn.classList.add("recording");
+        sesliBtn.innerHTML = '<span class="eq"><i></i><i></i><i></i></span>';
+        return NSR.start({language:"tr-TR", maxResults:1, partialResults:false, popup:false});
+      }).then(function(r){
+        bitir();
+        var t = r && r.matches && r.matches[0];
+        if(t) sesliKomutuIsle(t); else toast("Sesli komut anlaşılamadı, tekrar dene.");
+      }).catch(function(){ bitir(); toast("Sesli komut anlaşılamadı, tekrar dene."); });
+    });
+  } else if(!SpeechRec){
+    sesliBtn.style.display = "none";
+  } else {
+    var tanima = null, dinliyor = false;
+    var sesliBtnIcon = sesliBtn.innerHTML;
+    function sesliBtnDinleme(on){
+      sesliBtn.classList.toggle("recording", on);
+      sesliBtn.innerHTML = on
+        ? '<span class="eq"><i></i><i></i><i></i></span>'
+        : sesliBtnIcon;
+    }
+    sesliBtn.addEventListener("click", function(){
+      if(dinliyor) return;
+      tanima = new SpeechRec();
+      tanima.lang = "tr-TR";
+      tanima.continuous = false;
+      tanima.interimResults = false;
+      dinliyor = true;
+      sesliBtnDinleme(true);
+      tanima.addEventListener("result", function(e){
+        var soylenen = e.results[0][0].transcript || "";
+        sesliKomutuIsle(soylenen);
+      });
+      tanima.addEventListener("error", function(){
+        toast("Sesli komut anlaşılamadı, tekrar dene.");
+      });
+      tanima.addEventListener("end", function(){
+        dinliyor = false;
+        sesliBtnDinleme(false);
+      });
+      try{ tanima.start(); }
+      catch(e){ dinliyor = false; sesliBtnDinleme(false); }
+    });
+  }
+
+  function sesliKomutuIsle(soylenen){
+    var temiz = soylenen.trim().replace(/[.!?]+$/,"");
+    var esle = temiz.match(/^(.*?)\s+(ekle|ekleyin|ekleyelim|işaretle|sepete ekle)$/i);
+    var urunAdi = esle ? esle[1].trim() : temiz;
+    if(!urunAdi){ toast("Ürün adı anlaşılamadı."); return; }
+    var buyukAd = urunAdi.toLocaleUpperCase("tr");
+    var mevcut = items(tab).find(function(it){ return it.name.toLocaleUpperCase("tr") === buyukAd; });
+    if(mevcut){
+      var r = rec(tab, mevcut.id);
+      if(!r.c){
+        r.c = true; save();
+        degisikligiLogla(mevcut.name, tab, "işaretledi");
+        toast("✅ \""+mevcut.name+"\" işaretlendi");
+      } else {
+        toast("\""+mevcut.name+"\" zaten işaretliydi");
+      }
+    } else {
+      state.extra[tab].push({name: buyukAd, qty:"1 ADET"});
+      save();
+      toast("🎙️ \""+buyukAd+"\" listeye eklendi");
+    }
+    render();
+  }
+
+  var sortBtn = document.getElementById("sortBtn");
+  var SORT_OFF = '<i class="fa-solid fa-arrow-down-wide-short bIco" aria-hidden="true"></i><span>Sırala</span>', SORT_ON = '<i class="fa-solid fa-arrow-up-short-wide bIco" aria-hidden="true"></i><span>Sıralı</span>';
+  sortBtn.addEventListener("click", function(){
+    sirali = !sirali;
+    sortBtn.classList.toggle("primary", sirali);
+    sortBtn.classList.toggle("ghost", !sirali);
+    sortBtn.innerHTML = sirali ? SORT_ON : SORT_OFF;
+    render();
+  });
+
+  /* ============ GEÇMİŞ LİSTELER ============
+     "📥 Kaydet" bu haftanın işaretli ürünlerini (Pazar + Market) Firebase'de
+     alisveris_listesi/gecmis altına yeni bir kayıt olarak ekler.
+     Kayıtlar gecmis.html sayfasında görüntülenir.
+     "Temizle" de, işaretler henüz kaydedilmemişse önce kaydetmeyi önerir.   */
+  var histModal = document.getElementById("histModal");
+  var histSaveBtn = document.getElementById("histSave");
+  var histAltBtn = document.getElementById("histSaveClear");
+  var histCancelBtn = document.getElementById("histCancel");
+  var histMode = "save";   // "save" | "clear"
+  var histBusy = false, histZaten = false;
+  var fbConnected = false, sonKayit = null;
+  var toastEl = document.getElementById("toast"), toastT = null;
+
+  if(fbReady){
+    try{
+      firebase.database().ref(".info/connected").on("value", function(s){ fbConnected = !!s.val(); });
+      // en son kaydı izle: aynı listeyi iki kez kaydetmeyi / gereksiz sormayı önlemek için
+      firebase.database().ref("alisveris_listesi/gecmis").limitToLast(1).on("value", function(s){
+        sonKayit = null;
+        s.forEach(function(c){ sonKayit = c.val(); });
+      });
+      // varsayılan liste: başka biri güncellerse herkeste anında yenilenir
+      firebase.database().ref("alisveris_listesi/varsayilan").on("value", function(sn){
+        DEF = defNorm(sn.val());
+        try{ if(DEF) localStorage.setItem(DEF_KEY, JSON.stringify(DEF)); else localStorage.removeItem(DEF_KEY); }catch(e){}
+        render();
+        if(currentView === "varsayilan" && !varDirty) renderVar();
+      });
+    }catch(e){}
+  }
+
+  function toast(msg){
+    toastEl.textContent = msg; toastEl.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ toastEl.classList.remove("show"); }, 2400);
+  }
+  function paketle(which){
+    return selected(which).map(function(x){ return {ad:x.name, miktar:x.qty || ""}; });
+  }
+  function imza(list){
+    return JSON.stringify((list||[]).map(function(x){
+      return [x.ad !== undefined ? x.ad : x.name, x.miktar !== undefined ? x.miktar : x.qty];
+    }));
+  }
+  function zatenKayitli(which){
+    if(!sonKayit) return false;
+    return imza(paketle(which)) === imza(sonKayit[which]);
+  }
+  function temizleTab(){ state[tab] = {}; save(); render(); }
+  function temizleIki(){ state.pazar = {}; state.market = {}; save(); render(); }
+
+  function histBtnDurum(){
+    histSaveBtn.disabled = histBusy || histZaten;
+    histAltBtn.disabled = histBusy;
+    histCancelBtn.disabled = histBusy;
+  }
+
+  function histAc(mode){
+    var p = selected("pazar").length, m = selected("market").length;
+    var ozet = "Pazar "+p+" · Market "+m+" ürün işaretli.";
+    histMode = mode;
+    document.getElementById("histNote").value = "";
+    if(mode === "clear"){
+      histZaten = false;
+      document.getElementById("histTitle").textContent = "Temizlemeden önce kaydedelim mi?";
+      document.getElementById("histSum").textContent = "Bu listedeki işaretler henüz geçmişe kaydedilmemiş. " + ozet;
+      histSaveBtn.textContent = "Kaydet ve Temizle";
+      histAltBtn.textContent = "Kaydetmeden Temizle";
+      document.getElementById("histHint").textContent =
+        "Kayıt her iki listeyi (Pazar + Market) birlikte saklar. Temizleme sadece "+(tab==="pazar"?"PAZAR":"MARKET")+" listesini sıfırlar.";
+    } else {
+      histZaten = zatenKayitli("pazar") && zatenKayitli("market");
+      document.getElementById("histTitle").textContent = "Geçmişe Kaydet";
+      document.getElementById("histSum").textContent = ozet + (histZaten
+        ? " Bu haliyle zaten geçmişe kaydedilmiş ✓"
+        : " Bu haftanın listesi geçmişe eklenecek.");
+      histSaveBtn.textContent = histZaten ? "Zaten kayıtlı ✓" : "Kaydet";
+      histAltBtn.textContent = histZaten ? "İkisini Temizle" : "Kaydet ve İkisini Temizle";
+      document.getElementById("histHint").textContent = "Kayıtlara menüdeki “Geçmiş Listeler” sayfasından bakabilirsin.";
+    }
+    histBusy = false; histBtnDurum();
+    histModal.classList.add("show");
+    var box = histModal.querySelector(".box");
+    box.classList.remove("animate__zoomIn"); void box.offsetWidth;
+    box.classList.add("animate__animated","animate__zoomIn");
+  }
+
+  function gecmiseYaz(bitti){
+    if(!fbReady || !fbConnected){
+      alert("Canlı bağlantı yok, geçmişe kaydedilemiyor. İnterneti kontrol edip tekrar deneyin.");
+      return;
+    }
+    var p = paketle("pazar"), m = paketle("market");
+    var not = document.getElementById("histNote").value.trim();
+    var kayit = { zaman:new Date().getTime(), tarihSaat:tarihSaatUret(), cihaz:cihazId(), pazar:p, market:m };
+    if(not) kayit.not = not;
+    histBusy = true; histBtnDurum();
+    firebase.database().ref("alisveris_listesi/gecmis").push(kayit).then(function(){
+      histBusy = false;
+      degisikligiLogla("Haftalık liste ("+(p.length+m.length)+" ürün)", "hepsi", "geçmişe kaydetti");
+      bitti();
+    }, function(){
+      histBusy = false; histBtnDurum();
+      alert("Geçmişe kaydedilemedi. Lütfen tekrar deneyin.");
+    });
+  }
+
+  histSaveBtn.addEventListener("click", function(){
+    if(histBusy) return;
+    gecmiseYaz(function(){
+      histModal.classList.remove("show");
+      if(histMode === "clear"){ temizleTab(); toast("Geçmişe kaydedildi, liste temizlendi ✓"); }
+      else { toast("Geçmişe kaydedildi ✓"); }
+    });
+  });
+  histAltBtn.addEventListener("click", function(){
+    if(histBusy) return;
+    if(histMode === "clear"){ histModal.classList.remove("show"); temizleTab(); return; }
+    if(histZaten){ histModal.classList.remove("show"); temizleIki(); toast("Liste temizlendi"); return; }
+    gecmiseYaz(function(){
+      histModal.classList.remove("show");
+      temizleIki();
+      toast("Geçmişe kaydedildi, liste temizlendi ✓");
+    });
+  });
+  histCancelBtn.addEventListener("click", function(){ if(!histBusy) histModal.classList.remove("show"); });
+  histModal.addEventListener("click", function(e){ if(e.target === histModal && !histBusy) histModal.classList.remove("show"); });
+
+  document.getElementById("saveHistBtn").addEventListener("click", function(){
+    if(!selected("pazar").length && !selected("market").length){
+      alert("Kaydedilecek işaretli ürün yok.\nÖnce alınacak ürünleri işaretleyin.");
+      return;
+    }
+    histAc("save");
+  });
+
+  /* ---- temizle ---- */
+  document.getElementById("clearBtn").addEventListener("click", function(){
+    if(fbReady && selected(tab).length && !zatenKayitli(tab)){ histAc("clear"); return; }
+    if(!confirm("Bu listedeki tüm işaretler silinsin mi?\n(Miktarlar da sıfırlanır)")) return;
+    temizleTab();
+  });
+
+  /* ---- ürün ekle ---- */
+  var addModal = document.getElementById("addModal");
+  document.getElementById("addBtn").addEventListener("click", function(){
+    document.getElementById("newName").value="";
+    document.getElementById("newQty").value="";
+    document.getElementById("newList").value=tab;
+    addModal.classList.add("show");
+    var box = addModal.querySelector(".box");
+    box.classList.remove("animate__zoomIn"); void box.offsetWidth;
+    box.classList.add("animate__animated","animate__zoomIn");
+  });
+  document.getElementById("closeAdd").addEventListener("click", function(){ addModal.classList.remove("show"); });
+  document.getElementById("saveNew").addEventListener("click", function(){
+    var n=document.getElementById("newName").value.trim();
+    var q=document.getElementById("newQty").value.trim();
+    var w=document.getElementById("newList").value;
+    if(!n){ alert("Ürün adı yazın."); return; }
+    state.extra[w].push({name:n.toLocaleUpperCase("tr"), qty:q||"1 ADET"});
+    save(); addModal.classList.remove("show");
+    tab=w;
+    Array.prototype.forEach.call(document.querySelectorAll("#listTabs .tab"), function(x){
+      x.classList.toggle("on", x.getAttribute("data-t")===w);
+    });
+    qEl.value=""; render();
+    window.scrollTo(0, document.body.scrollHeight);
+  });
+
+  /* ---- gönder ---- */
+  var sendModal = document.getElementById("sendModal");
+  var phoneEl = document.getElementById("phone");
+  var scopeEl = document.getElementById("scope");
+  var prevEl = document.getElementById("prev");
+
+  function refreshPrev(){ prevEl.textContent = buildText(scopeEl.value).replace(/\*/g,""); }
+
+  document.getElementById("sendBtn").addEventListener("click", function(){
+    phoneEl.value = state.phone || "";
+    refreshPrev();
+    sendModal.classList.add("show");
+    var box = sendModal.querySelector(".box");
+    box.classList.remove("animate__zoomIn"); void box.offsetWidth;
+    box.classList.add("animate__animated","animate__zoomIn");
+  });
+  scopeEl.addEventListener("change", refreshPrev);
+  document.getElementById("closeSend").addEventListener("click", function(){ sendModal.classList.remove("show"); });
+
+  document.getElementById("waBtn").addEventListener("click", function(){
+    var ph = phoneEl.value.replace(/[^0-9]/g,"");
+    state.phone = ph; save();
+    var txt = encodeURIComponent(buildText(scopeEl.value));
+    var url = ph ? ("https://wa.me/"+ph+"?text="+txt) : ("https://wa.me/?text="+txt);
+    var w = window.open(url, "_blank");
+    if(!w){ window.location.href = url; }
+    var btn = document.getElementById("waBtn");
+    btn.classList.add("animate__animated","animate__tada");
+    setTimeout(function(){ btn.classList.remove("animate__animated","animate__tada"); }, 800);
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var t = buildText(scopeEl.value);
+    var btn = document.getElementById("copyBtn");
+    function ok(){ btn.textContent="Kopyalandı ✓"; setTimeout(function(){btn.textContent="Kopyala";},1500); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(ok, fallback);
+    } else { fallback(); }
+    function fallback(){
+      var ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta);
+      ta.select(); try{ document.execCommand("copy"); ok(); }catch(e){ alert("Kopyalanamadı."); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  /* ---- PDF / yazdır ---- */
+  var printModal = document.getElementById("printModal");
+  var printScopeEl = document.getElementById("printScope");
+
+  document.getElementById("printBtn").addEventListener("click", function(){
+    printModal.classList.add("show");
+    var box = printModal.querySelector(".box");
+    box.classList.remove("animate__zoomIn"); void box.offsetWidth;
+    box.classList.add("animate__animated","animate__zoomIn");
+  });
+  document.getElementById("closePrint").addEventListener("click", function(){
+    printModal.classList.remove("show");
+  });
+
+  document.getElementById("printGo").addEventListener("click", function(){
+    var scope = printScopeEl.value;
+    var pa = document.getElementById("printArea");
+    var html = "<h1 style='font-size:18px;margin:0'>"+today()+"</h1>";
+    [["pazar","PAZAR LİSTESİ"],["market","MARKET LİSTESİ"]].forEach(function(p){
+      if(scope!=="both" && scope!==p[0]) return;
+      var s = selected(p[0]);
+      if(!s.length) return;
+      html += "<h2>"+p[1]+" ("+s.length+" ürün)</h2><table>";
+      s.forEach(function(x){
+        html += "<tr><td>"+x.name+"</td><td class='q'>"+x.qty+"</td></tr>";
+      });
+      html += "</table>";
+    });
+    if(html.indexOf("<h2>")<0) html += "<p>Hiç ürün işaretlenmedi.</p>";
+    pa.innerHTML = html;
+    printModal.classList.remove("show");
+    var NP = nativBld();
+    if(NP && NP.PrintPlugin){ NP.PrintPlugin.print().catch(function(){ window.print(); }); }
+    else window.print();
+  });
+
+  /* ---- köşe menüsü & görünüm değiştirme ---- */
+  var menuBtn = document.getElementById("menuBtn");
+  var menuDrop = document.getElementById("menuDrop");
+  menuBtn.addEventListener("click", function(e){
+    e.stopPropagation();
+    menuDrop.classList.toggle("show"); menuBtn.classList.toggle("open", menuDrop.classList.contains("show"));
+  });
+  document.addEventListener("click", function(e){
+    if(menuDrop.classList.contains("show") && !menuDrop.contains(e.target) && e.target!==menuBtn){
+      menuDrop.classList.remove("show"); menuBtn.classList.remove("open");
+    }
+    if(!e.target.closest || !e.target.closest(".reactPicker, .likeBtn, .delMenu, .delBtn")){
+      Array.prototype.forEach.call(document.querySelectorAll(".reactPicker.show"), function(p){ p.classList.remove("show"); });
+      Array.prototype.forEach.call(document.querySelectorAll(".delMenu.show"), function(p){ p.classList.remove("show"); });
+    }
+  });
+
+  /* ============ GEÇMİŞ LİSTELER (sohbet gibi sayfa içi görünüm) ============ */
+  var GC_AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  var gcKayitlar = [];      // en yeni başta
+  var gcAcik = {};          // kayıt anahtarı -> kullanıcı açtı mı (varsayılan: kapalı)
+  var gcYuklendi = false, gcHata = false;
+  var histViewEl = document.getElementById("histView");
+  var histQEl = document.getElementById("histQ");
+
+  function gcNorm(s){ return (s || "").toLocaleUpperCase("tr"); }
+  function gcTarih(k){
+    var d = k.zaman ? new Date(k.zaman) : null;
+    if(!d || isNaN(d.getTime())){
+      var m = (k.tarihSaat || "").match(/^(\d\d)\.(\d\d)\.(\d{4})/);
+      d = m ? new Date(+m[3], +m[2] - 1, +m[1]) : null;
+    }
+    return d;
+  }
+  function gcAy(k){
+    var d = gcTarih(k);
+    return d ? GC_AYLAR[d.getMonth()] + " " + d.getFullYear() : "Tarihsiz";
+  }
+  function gcIsaretle(el, text, term){
+    var i = term ? gcNorm(text).indexOf(term) : -1;
+    if(i < 0){ el.textContent = text; return; }
+    el.appendChild(document.createTextNode(text.slice(0, i)));
+    var mk = document.createElement("mark");
+    mk.textContent = text.slice(i, i + term.length);
+    el.appendChild(mk);
+    el.appendChild(document.createTextNode(text.slice(i + term.length)));
+  }
+  function gcMetin(k){
+    var gun = (k.tarihSaat || "").split(" ")[0];
+    var o = ["🌸 *FEYZANUR – ALIŞVERİŞ LİSTESİ* – " + gun, ""];
+    [["PAZAR LİSTESİ", k.pazar], ["MARKET LİSTESİ", k.market]].forEach(function(b){
+      var a = b[1] || [];
+      if(!a.length) return;
+      o.push("*" + b[0] + "* (" + a.length + " ürün)");
+      a.forEach(function(x){ o.push("• " + x.ad + " — " + x.miktar); });
+      o.push("");
+    });
+    return o.join("\n").trim();
+  }
+  function gcKopyala(t, btn){
+    var eski = btn.innerHTML;
+    function ok(){ btn.innerHTML = '<i class="fa-solid fa-check ic" aria-hidden="true"></i>Kopyalandı'; setTimeout(function(){ btn.innerHTML = eski; }, 1500); }
+    function yedek(){
+      var ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta);
+      ta.select(); try{ document.execCommand("copy"); ok(); }catch(e){ alert("Kopyalanamadı."); }
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(ok, yedek);
+    } else { yedek(); }
+  }
+  function gcBolum(baslik, arr, term){
+    if(!arr.length) return null;
+    var sec = document.createElement("div"); sec.className = "hSec";
+    var h = document.createElement("h3");
+    h.textContent = baslik + " (" + arr.length + ")";
+    sec.appendChild(h);
+    arr.forEach(function(x){
+      var row = document.createElement("div"); row.className = "hIt";
+      var n = document.createElement("span"); n.className = "n";
+      gcIsaretle(n, x.ad || "", term);
+      var q = document.createElement("span"); q.className = "q"; q.textContent = x.miktar || "";
+      row.appendChild(n); row.appendChild(q);
+      sec.appendChild(row);
+    });
+    return sec;
+  }
+
+  function renderGecmis(){
+    var el = histViewEl;
+    if(!el) return;
+    el.innerHTML = "";
+    function bos(html){
+      var d = document.createElement("div"); d.className = "empty"; d.innerHTML = html; el.appendChild(d);
+    }
+    if(!fbReady){ bos("Canlı bağlantı yok, geçmiş listeler gösterilemiyor."); return; }
+    if(gcHata){ bos("Bağlantı kurulamadı. İnterneti kontrol edip sayfayı yenileyin."); return; }
+    if(!gcYuklendi){
+      for(var i=0;i<4;i++){ var sk=document.createElement("div"); sk.className="skel"; el.appendChild(sk); }
+      return;
+    }
+    if(!gcKayitlar.length){
+      bos('Henüz geçmişe kaydedilmiş liste yok.<br>Ana menüde <b>📥 Kaydet</b> düğmesiyle bu haftanın listesini ekleyebilirsin.');
+      return;
+    }
+
+    var term = gcNorm(histQEl.value.trim());
+    var eslesme = function(x){ return gcNorm(x.ad).indexOf(term) > -1; };
+    var gosterilen = 0, sonAy = "";
+    var sayi = document.createElement("p");
+    sayi.className = "chatHint";
+    el.appendChild(sayi);
+
+    gcKayitlar.forEach(function(k){
+      var pAll = k.pazar || [], mAll = k.market || [];
+      var p = term ? pAll.filter(eslesme) : pAll;
+      var m = term ? mAll.filter(eslesme) : mAll;
+      if(term && !p.length && !m.length) return;
+      gosterilen++;
+
+      var ay = gcAy(k);
+      if(ay !== sonAy){
+        var mh = document.createElement("div"); mh.className = "hMonth"; mh.textContent = ay;
+        el.appendChild(mh);
+        sonAy = ay;
+      }
+
+      var card = document.createElement("div");
+      card.className = "hCard" + ((term || gcAcik[k._key]) ? " open" : "");
+
+      var head = document.createElement("button");
+      head.className = "hHead"; head.type = "button";
+      var txt = document.createElement("div"); txt.className = "txt";
+      var d = document.createElement("div"); d.className = "d"; d.textContent = k.tarihSaat || "Tarihsiz";
+      var s = document.createElement("div"); s.className = "s";
+      s.textContent = "Pazar " + pAll.length + " · Market " + mAll.length + " ürün";
+      txt.appendChild(d);
+      if(k.not){
+        var nt = document.createElement("div"); nt.className = "note"; nt.innerHTML = '<i class="fa-solid fa-note-sticky ic" aria-hidden="true"></i>'; nt.appendChild(document.createTextNode(k.not));
+        txt.appendChild(nt);
+      }
+      txt.appendChild(s);
+      var chev = document.createElement("span"); chev.className = "hChev"; chev.innerHTML = '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>';
+      head.appendChild(txt); head.appendChild(chev);
+      head.addEventListener("click", function(){
+        var yeni = !card.classList.contains("open");
+        card.classList.toggle("open", yeni);
+        gcAcik[k._key] = yeni;
+      });
+      card.appendChild(head);
+
+      var body = document.createElement("div"); body.className = "hBody";
+      var inner = document.createElement("div"); inner.className = "hInner";
+      var in2 = document.createElement("div"); in2.className = "hIn2";
+      var sp = gcBolum("PAZAR", p, term), sm = gcBolum("MARKET", m, term);
+      if(sp) in2.appendChild(sp);
+      if(sm) in2.appendChild(sm);
+
+      var acts = document.createElement("div"); acts.className = "hActs";
+      var cp = document.createElement("button"); cp.className = "btn"; cp.type = "button"; cp.innerHTML = '<i class="fa-solid fa-copy ic" aria-hidden="true"></i>Kopyala';
+      cp.addEventListener("click", function(){ gcKopyala(gcMetin(k), cp); });
+      var dl = document.createElement("button"); dl.className = "btn del"; dl.type = "button"; dl.textContent = "Sil";
+      dl.addEventListener("click", function(){
+        if(!confirm("Bu kayıt geçmişten silinsin mi?\n" + (k.tarihSaat || ""))) return;
+        firebase.database().ref("alisveris_listesi/gecmis/" + k._key).remove();
+      });
+      acts.appendChild(cp); acts.appendChild(dl);
+      in2.appendChild(acts);
+
+      inner.appendChild(in2); body.appendChild(inner); card.appendChild(body);
+      el.appendChild(card);
+    });
+
+    if(!gosterilen){
+      el.innerHTML = "";
+      bos("Bu ürün hiçbir kayıtta bulunamadı.");
+      return;
+    }
+    sayi.textContent = gcKayitlar.length + " kayıt" + (term ? " · aranan: " + histQEl.value.trim() : "");
+  }
+
+  histQEl.addEventListener("input", function(){ if(gcYuklendi) renderGecmis(); });
+  if(fbReady){
+    try{
+      firebase.database().ref("alisveris_listesi/gecmis").limitToLast(150).on("value", function(snap){
+        var arr = [];
+        snap.forEach(function(c){ var v = c.val() || {}; v._key = c.key; arr.push(v); });
+        arr.sort(function(a, b){ return (b.zaman || 0) - (a.zaman || 0); });
+        gcKayitlar = arr; gcYuklendi = true; gcHata = false;
+        renderGecmis();
+      }, function(){ gcHata = true; renderGecmis(); });
+    }catch(e){}
+  }
+
+  /* ============ VARSAYILAN LİSTE DÜZENLEME SAYFASI ============ */
+  var varViewEl = document.getElementById("varView");
+  var varTab = "pazar", varDraft = null, varDirty = false;
+  function varYeniId(w){ return w + "_n" + Date.now().toString(36) + Math.floor(Math.random()*1296).toString(36); }
+  function varKopya(){
+    var c = {};
+    ["pazar","market"].forEach(function(w){
+      c[w] = defList(w).map(function(x){ return {id:x.id, ad:x.ad, miktar:x.miktar}; });
+    });
+    return c;
+  }
+  function varKirli(){
+    varDirty = true;
+    var b = document.getElementById("varSaveBtn"); if(b) b.disabled = false;
+    var v = document.getElementById("varCancelBtn"); if(v) v.style.display = "";
+  }
+  function varBtn(txt, title, fn, disabled){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "vMv"; b.innerHTML = txt; b.title = title; b.disabled = !!disabled;
+    b.addEventListener("click", fn);
+    return b;
+  }
+  function renderVar(){
+    var el = varViewEl;
+    if(!el) return;
+    if(!varDraft || !varDirty) varDraft = varKopya();
+    el.innerHTML = "";
+    var hint = document.createElement("p"); hint.className = "vHint";
+    hint.textContent = "Burada yaptığın değişiklik herkesin ana listesini etkiler. Ürün ekleyebilir, silebilir, adını veya miktarını değiştirebilir, ▲▼ ile sırasını ayarlayabilirsin. Kaydet'e basınca herkeste güncellenir.";
+    el.appendChild(hint);
+    var arr = varDraft[varTab];
+    arr.forEach(function(x, i){
+      var row = document.createElement("div"); row.className = "vRow";
+      var nm = document.createElement("input");
+      nm.type = "text"; nm.className = "name"; nm.value = x.ad; nm.placeholder = "Ürün adı";
+      nm.addEventListener("input", function(){ x.ad = nm.value; varKirli(); });
+      var qt = document.createElement("input");
+      qt.type = "text"; qt.className = "qty"; qt.value = x.miktar; qt.placeholder = "Miktar";
+      qt.addEventListener("input", function(){ x.miktar = qt.value; varKirli(); });
+      var up = varBtn('<i class="fa-solid fa-arrow-up" aria-hidden="true"></i>', "Yukarı", function(){ arr.splice(i-1, 0, arr.splice(i, 1)[0]); varKirli(); renderVar(); }, i === 0);
+      var dn = varBtn('<i class="fa-solid fa-arrow-down" aria-hidden="true"></i>', "Aşağı", function(){ arr.splice(i+1, 0, arr.splice(i, 1)[0]); varKirli(); renderVar(); }, i === arr.length - 1);
+      var del = document.createElement("button");
+      del.type = "button"; del.className = "del"; del.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>'; del.title = "Listeden çıkar";
+      del.addEventListener("click", function(){
+        if(x.ad.trim() && !confirm("\"" + x.ad + "\" varsayılan listeden çıkarılsın mı?")) return;
+        arr.splice(i, 1); varKirli(); renderVar();
+      });
+      row.appendChild(nm); row.appendChild(qt); row.appendChild(up); row.appendChild(dn); row.appendChild(del);
+      el.appendChild(row);
+    });
+    var add = document.createElement("button");
+    add.type = "button"; add.className = "btn vNew"; add.style.width = "100%"; add.textContent = "+ Ürün ekle";
+    add.addEventListener("click", function(){
+      arr.push({id:varYeniId(varTab), ad:"", miktar:"1 ADET"});
+      varKirli(); renderVar();
+      var inputs = el.querySelectorAll(".vRow input.name");
+      var last = inputs[inputs.length - 1];
+      if(last){ last.scrollIntoView({block:"center"}); last.focus(); }
+    });
+    el.appendChild(add);
+
+    var acts = document.createElement("div"); acts.className = "vActs";
+    var save = document.createElement("button");
+    save.type = "button"; save.id = "varSaveBtn"; save.className = "btn primary"; save.textContent = "Kaydet (herkes için)";
+    save.disabled = !varDirty;
+    save.addEventListener("click", varKaydet);
+    var cancel = document.createElement("button");
+    cancel.type = "button"; cancel.id = "varCancelBtn"; cancel.className = "btn ghost"; cancel.textContent = "Vazgeç";
+    cancel.style.display = varDirty ? "" : "none";
+    cancel.addEventListener("click", function(){ varDirty = false; renderVar(); });
+    var reset = document.createElement("button");
+    reset.type = "button"; reset.className = "btn ghost"; reset.textContent = "İlk haline döndür";
+    reset.addEventListener("click", varSifirla);
+    acts.appendChild(save); acts.appendChild(cancel); acts.appendChild(reset);
+    el.appendChild(acts);
+  }
+
+  function varKaydet(){
+    if(!fbReady){ toast("Canlı bağlantı yok, kaydedilemedi."); return; }
+    var out = {}, hata = null;
+    ["pazar","market"].forEach(function(w){
+      out[w] = varDraft[w].map(function(x){
+        return {id:x.id, ad:x.ad.trim().toLocaleUpperCase("tr"), miktar:x.miktar.trim().toLocaleUpperCase("tr")};
+      }).filter(function(x){ return x.ad; });
+      if(!out[w].length) hata = (w === "pazar" ? "PAZAR" : "MARKET") + " listesinde en az 1 ürün olmalı.";
+    });
+    if(hata){ toast(hata); return; }
+    if(!confirm("Varsayılan liste herkes için güncellensin mi?\n\nPazar: " + out.pazar.length + " ürün\nMarket: " + out.market.length + " ürün")) return;
+    var eski = {pazar:{}, market:{}};
+    ["pazar","market"].forEach(function(w){ defList(w).forEach(function(x){ eski[w][x.id] = x; }); });
+    out.guncelleme = {zaman:Date.now(), cihaz:cihazId()};
+    firebase.database().ref("alisveris_listesi/varsayilan").set(out).then(function(){ try{
+      // adı/miktarı değişen ürünlerde eski kişisel düzenleme yeni değeri gizlemesin; çıkarılanların kayıtları temizlensin
+      ["pazar","market"].forEach(function(w){
+        var yeniIds = {};
+        out[w].forEach(function(x){
+          yeniIds[x.id] = true;
+          var o = eski[w][x.id], r = state[w][x.id];
+          if(o && r){
+            if(o.ad !== x.ad) delete r.n;
+            if(o.miktar !== x.miktar) r.q = null;
+          }
+        });
+        Object.keys(eski[w]).forEach(function(id){ if(!yeniIds[id]) delete state[w][id]; });
+      });
+      save();
+      varDirty = false; renderVar(); render();
+      toast("Varsayılan liste güncellendi ✓");
+      degisikligiLogla("Varsayılan liste", "hepsi", "güncelledi");
+    }catch(e2){ try{ varDirty = false; }catch(e3){} alert("Kaydedildi ama ekran yenilenemedi.\n\nHata: " + ((e2 && e2.message) || e2) + "\n\n" + String((e2 && e2.stack) || "").split("\n").slice(0,4).join("\n")); } }, function(er){ toast("Kaydedilemedi: " + ((er && (er.code || er.message)) || "bilinmeyen hata")); });
+  }
+
+  function varSifirla(){
+    if(!fbReady){ toast("Canlı bağlantı yok."); return; }
+    if(!confirm("Varsayılan liste uygulamanın ilk haline (yerleşik liste) döndürülsün mü?\nSenin eklediğin ve değiştirdiğin ürünler herkesten kalkar.")) return;
+    firebase.database().ref("alisveris_listesi/varsayilan").remove().then(function(){
+      varDirty = false; renderVar(); toast("İlk haline döndürüldü ✓");
+      degisikligiLogla("Varsayılan liste", "hepsi", "ilk haline döndürdü");
+    }).catch(function(er){ toast("İşlem yapılamadı: " + ((er && (er.code || er.message)) || "bilinmeyen hata")); });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("#varTabs .tab"), function(b){
+    b.addEventListener("click", function(){
+      varTab = b.getAttribute("data-vt");
+      Array.prototype.forEach.call(document.querySelectorAll("#varTabs .tab"), function(x){ x.classList.toggle("on", x === b); });
+      renderVar();
+    });
+  });
+
+  /* ============ SAYFA GEÇİŞLERİ ============ */
+  var VIEW_EL = {
+    liste:  ["listTabs", "listBar", "listView", "listFooter"],
+    sohbet: ["chatView", "chatFooter"],
+    gecmis: ["histBar", "histView"],
+    varsayilan: ["varTabs", "varView"]
+  };
+  var VIEW_RANK = { liste:0, sohbet:1, gecmis:2, varsayilan:3 };
+  var VIEW_DISPLAY = { listFooter:"flex", chatFooter:"flex" };
+  var VIEW_FOOTER = { liste:"listFooter", sohbet:"chatFooter", gecmis:null, varsayilan:null };
+  function altBosluguAyarla(v){
+    var fid = VIEW_FOOTER[v];
+    var h = fid ? document.getElementById(fid).offsetHeight : 0;
+    document.documentElement.style.setProperty("--footer-h", (h ? h+14 : 20)+"px");
+  }
+  var gecisT = null;
+
+  function setView(v, yon){
+    currentView = v;
+    document.body.setAttribute("data-view", v);
+    Object.keys(VIEW_EL).forEach(function(name){
+      VIEW_EL[name].forEach(function(id){
+        var el = document.getElementById(id);
+        el.classList.remove("vOut","vInR","vInL","vInF");
+        el.style.display = (name === v) ? (VIEW_DISPLAY[id] || "") : "none";
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".menuItem"), function(b){
+      b.classList.toggle("on", b.getAttribute("data-view") === v);
+    });
+    menuDrop.classList.remove("show"); menuBtn.classList.remove("open");
+    altBosluguAyarla(v);
+
+    if(yon){
+      VIEW_EL[v].forEach(function(id){
+        var el = document.getElementById(id);
+        var cls = (el.tagName === "MAIN") ? (yon > 0 ? "vInR" : "vInL") : "vInF";
+        el.classList.add(cls);
+        el.addEventListener("animationend", function h(e){
+          if(e.target !== el) return;
+          el.removeEventListener("animationend", h);
+          el.classList.remove(cls);
+          if(v === "sohbet" && id === "chatView"){
+            var lastMsg = chatMsgsEl && chatMsgsEl.lastElementChild;
+            if(lastMsg){ lastMsg.scrollIntoView({block:"end", behavior:"smooth"}); }
+          }
+        });
+      });
+    }
+
+    if(v === "liste"){
+      requestAnimationFrame(function(){ window.scrollTo(0, 0); });
+    }
+    if(v === "varsayilan"){
+      renderVar();
+      requestAnimationFrame(function(){ window.scrollTo(0, 0); });
+    }
+    if(v === "gecmis"){
+      renderGecmis();
+      requestAnimationFrame(function(){ window.scrollTo(0, 0); });
+    }
+    if(v === "sohbet"){
+      renderChat();
+      sohbetGoruldu();
+      altBosluguAyarla("sohbet");
+      if(!yon){
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            var lastMsg = chatMsgsEl && chatMsgsEl.lastElementChild;
+            if(lastMsg){ lastMsg.scrollIntoView({block:"end", behavior:"smooth"}); }
+          });
+        });
+      }
+    }
+  }
+
+  // önce mevcut sayfa yumuşakça kaybolur, sonra yenisi kayarak gelir
+  function gecis(v){
+    menuDrop.classList.remove("show"); menuBtn.classList.remove("open");
+    if(v === currentView){
+      clearTimeout(gecisT);
+      VIEW_EL[currentView].forEach(function(id){ document.getElementById(id).classList.remove("vOut"); });
+      return;
+    }
+    var yon = VIEW_RANK[v] > VIEW_RANK[currentView] ? 1 : -1;
+    VIEW_EL[currentView].forEach(function(id){ document.getElementById(id).classList.add("vOut"); });
+    clearTimeout(gecisT);
+    gecisT = setTimeout(function(){ setView(v, yon); }, 170);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".menuItem[data-view]"), function(b){
+    b.addEventListener("click", function(){ gecis(b.getAttribute("data-view")); });
+  });
+
+  /* ---- sohbet arka plan resmi + yükseklik ---- */
+  (function(){
+    var cv = document.getElementById("chatView");
+    var hdr = document.querySelector("header");
+    function hdrYuksek(){ document.documentElement.style.setProperty("--hdr-h", hdr.offsetHeight+"px"); }
+    hdrYuksek();
+    if(window.ResizeObserver){ new ResizeObserver(hdrYuksek).observe(hdr); }
+    window.addEventListener("resize", hdrYuksek);
+
+    // not: "sohbet_" ile başlayan anahtarlar çıkışta silindiği için farklı bir ad kullanılıyor
+    var BG_KEY = "arkaplan_resim";
+    try{
+      var eski = localStorage.getItem("sohbet_arkaplan");
+      if(eski && !localStorage.getItem(BG_KEY)) localStorage.setItem(BG_KEY, eski);
+      if(eski) localStorage.removeItem("sohbet_arkaplan");
+    }catch(e){}
+    var secBtn = document.getElementById("bgSecBtn");
+    var kaldirBtn = document.getElementById("bgKaldirBtn");
+    var inp = document.getElementById("bgInput");
+    var alt = document.getElementById("bgAlt");
+    function uygula(data){
+      if(data){
+        cv.style.setProperty("--chatbg", "url(" + data + ")");
+        cv.classList.add("hasBg");
+        kaldirBtn.style.display = ""; alt.textContent = "Özel resim"; secBtn.textContent = "Değiştir";
+      }else{
+        cv.style.removeProperty("--chatbg");
+        cv.classList.remove("hasBg");
+        kaldirBtn.style.display = "none"; alt.textContent = "Varsayılan"; secBtn.textContent = "Seç";
+      }
+    }
+    try{ uygula(localStorage.getItem(BG_KEY)); }catch(e){}
+    secBtn.addEventListener("click", function(){ inp.click(); });
+    kaldirBtn.addEventListener("click", function(){
+      try{ localStorage.removeItem(BG_KEY); }catch(e){}
+      uygula(null);
+    });
+    inp.addEventListener("change", function(){
+      var f = inp.files && inp.files[0];
+      inp.value = "";
+      if(!f) return;
+      var url = URL.createObjectURL(f);
+      var img = new Image();
+      img.onload = function(){
+        var M = 1280, w = img.naturalWidth, h = img.naturalHeight;
+        var k = Math.min(1, M / Math.max(w, h));
+        var c = document.createElement("canvas");
+        c.width = Math.round(w*k); c.height = Math.round(h*k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        var data = c.toDataURL("image/jpeg", 0.72);
+        try{ localStorage.setItem(BG_KEY, data); }
+        catch(e){ alert("Resim çok büyük, kaydedilemedi. Daha küçük bir resim dene."); return; }
+        uygula(data);
+        menuDrop.classList.remove("show"); menuBtn.classList.remove("open");
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); alert("Resim açılamadı."); };
+      img.src = url;
+    });
+  })();
+
+  /* ---- sohbet alanları ---- */
+  chatNameEl = document.getElementById("chatName");
+  chatMsgEl = document.getElementById("chatMsg");
+  chatMsgsEl = document.getElementById("chatMsgs");
+  chatSendBtn = document.getElementById("chatSendBtn");
+  chatImgBtn = document.getElementById("chatImgBtn");
+  chatImgInput = document.getElementById("chatImgInput");
+  imgPreviewRow = document.getElementById("imgPreviewRow");
+  imgPreviewThumb = document.getElementById("imgPreviewThumb");
+  imgPreviewName = document.getElementById("imgPreviewName");
+  imgPreviewCancel = document.getElementById("imgPreviewCancel");
+  chatMicBtn = document.getElementById("chatMicBtn");
+  audioPreviewRow = document.getElementById("audioPreviewRow");
+  audioPreviewSure = document.getElementById("audioPreviewSure");
+  audioPreviewCancel = document.getElementById("audioPreviewCancel");
+  chatMicBtn.addEventListener("click", function(){
+    if(kayitAktif) kaydiDurdur(); else kaydiBaslat();
+  });
+  audioPreviewCancel.addEventListener("click", sesSecimiTemizle);
+  replyPreviewRow = document.getElementById("replyPreviewRow");
+  replyPreviewText = document.getElementById("replyPreviewText");
+  replyPreviewCancel = document.getElementById("replyPreviewCancel");
+  replyPreviewCancel.addEventListener("click", yanitTemizle);
+  try{ chatNameEl.value = localStorage.getItem("sohbet_isim") || ""; }catch(e){}
+  chatNameEl.addEventListener("change", function(){
+    try{ localStorage.setItem("sohbet_isim", chatNameEl.value.trim()); }catch(e){}
+  });
+  chatSendBtn.addEventListener("click", sohbetGonder);
+  chatMsgEl.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); sohbetGonder(); }
+  });
+  chatImgBtn.addEventListener("click", function(){ chatImgInput.click(); });
+  chatImgInput.addEventListener("change", function(){
+    var f = chatImgInput.files && chatImgInput.files[0];
+    chatImgInput.value = "";
+    if(!f) return;
+    if(!/^image\//.test(f.type)){ alert("Lütfen bir fotoğraf dosyası seçin."); return; }
+    chatImgBtn.disabled = true; var eski = chatImgBtn.innerHTML; chatImgBtn.innerHTML = '<span class="spinIco"></span>';
+    resimSikistir(f, function(dataUrl){
+      chatImgBtn.disabled = false; chatImgBtn.innerHTML = eski;
+      if(!dataUrl){ alert("Fotoğraf işlenemedi, tekrar deneyin."); return; }
+      if(dataUrl.length > 900000){ alert("Bu fotoğraf çok büyük. Daha küçük veya daha az detaylı bir fotoğraf deneyin."); return; }
+      pendingImage = dataUrl;
+      imgPreviewThumb.src = dataUrl;
+      imgPreviewName.textContent = f.name || "Fotoğraf";
+      imgPreviewRow.style.display = "flex";
+      altBosluguAyarla("sohbet");
+    });
+  });
+  imgPreviewCancel.addEventListener("click", resimSecimiTemizle);
+
+  if(sohbetRef){
+    sohbetRef.on("value", function(snap){
+      var gizli = gizlileriYukle();
+      var arr = [], hamSayi = 0;
+      snap.forEach(function(c){
+        hamSayi++;
+        if(gizli.indexOf(c.key) > -1) return;
+        var v = c.val() || {}; v._key = c.key; arr.push(v);
+      });
+      var eskiSayi = sonBilinenMesajSayisi;
+      sonBilinenMesajSayisi = hamSayi;
+      lastSohbetSnapshot = arr;
+      renderChat();
+      if(currentView === "sohbet"){ sohbetGoruldu(); } else { refreshSohbetBadge(); }
+      if(eskiSayi !== null && arr.length > eskiSayi){
+        var enSon = arr[arr.length-1];
+        if(enSon && enSon.cihaz !== cihazId()){
+          yeniMesajBildirimVer(enSon);
+        }
+      }
+    });
+  }
+
+  var bildirimBtn = document.getElementById("bildirimBtn");
+  if(bildirimBtn){
+    bildirimDurumGuncelle();
+    bildirimBtn.addEventListener("click", function(){
+      var NB = nativBld();
+      if(NB && NB.LocalNotifications){ NB.LocalNotifications.requestPermissions().then(bildirimDurumGuncelle).catch(function(){}); return; }
+      if(!window.Notification) return;
+      Notification.requestPermission().then(bildirimDurumGuncelle);
+    });
+  }
+
+  document.getElementById("closeImgModal").addEventListener("click", function(){
+    document.getElementById("imgModal").classList.remove("show");
+  });
+
+  /* ---- modalları dışına tıklayınca kapat ---- */
+  [sendModal, addModal, printModal, document.getElementById("imgModal")].forEach(function(m){
+    m.addEventListener("click", function(e){ if(e.target===m) m.classList.remove("show"); });
+  });
+
+
+  var h = new Date().getHours();
+  var g = h < 11 ? "günaydın, kolay gelsin ☕" : (h < 18 ? "iyi günler, ellerine sağlık 🌿" : "iyi akşamlar 🌙");
+  document.getElementById("greet").textContent = g + " · " + today();
+
+  /* ---- tema (gece / gündüz anahtarı) ---- */
+  function sistemKoyuMu(){
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+  function kayitliTema(){
+    try{
+      var t = localStorage.getItem("tema_tercihi");
+      return (t === "acik" || t === "koyu") ? t : null;
+    }catch(e){ return null; }
+  }
+  function etkinTema(){ return kayitliTema() || (sistemKoyuMu() ? "koyu" : "acik"); }
+  function temaUygula(){
+    var kayitli = kayitliTema();
+    if(kayitli === "koyu") document.documentElement.setAttribute("data-theme","dark");
+    else if(kayitli === "acik") document.documentElement.setAttribute("data-theme","light");
+    else document.documentElement.removeAttribute("data-theme");
+    var koyu = etkinTema() === "koyu";
+    var sw = document.getElementById("temaSwitch");
+    if(sw){
+      sw.classList.toggle("dark", koyu);
+      sw.setAttribute("aria-checked", koyu ? "true" : "false");
+    }
+    var alt = document.getElementById("temaAlt");
+    if(alt) alt.textContent = koyu ? "Gece" : "Gündüz";
+  }
+  function temaBaslat(){
+    temaUygula();
+    var sw = document.getElementById("temaSwitch");
+    if(sw) sw.addEventListener("click", function(e){
+      e.stopPropagation();
+      var yeni = etkinTema() === "koyu" ? "acik" : "koyu";
+      try{ localStorage.setItem("tema_tercihi", yeni); }catch(err){}
+      temaUygula();
+    });
+    if(window.matchMedia){
+      var mq = window.matchMedia("(prefers-color-scheme: dark)");
+      var degisti = function(){ if(!kayitliTema()) temaUygula(); };
+      if(mq.addEventListener) mq.addEventListener("change", degisti);
+      else if(mq.addListener) mq.addListener(degisti);
+    }
+  }
+  temaBaslat();
+
+  /* ---- haftalık hatırlatma (varsayılan: Perşembe) ---- */
+  var HATIRLATMA_GUNLERI = [4]; // 0=Pazar,1=Pzt,2=Sal,3=Çar,4=Per,5=Cum,6=Cmt
+  function haftalikHatirlatmaKontrolEt(){
+    var bugun = new Date();
+    if(HATIRLATMA_GUNLERI.indexOf(bugun.getDay()) === -1) return;
+    function p(n){return n<10?"0"+n:""+n;}
+    var anahtar = "hatirlatma_" + bugun.getFullYear()+p(bugun.getMonth()+1)+p(bugun.getDate());
+    var gorulmus = false;
+    try{ gorulmus = !!localStorage.getItem(anahtar); }catch(e){}
+    if(gorulmus) return;
+    try{ localStorage.setItem(anahtar, "1"); }catch(e){}
+    setTimeout(function(){ toast("📤 Bugün liste günü! Alışveriş listeni hazırladın mı?"); }, 900);
+  }
+  haftalikHatirlatmaKontrolEt();
+
+  load(); render(true); girisiLogla();
+  setLive(false);
+
+  if(fbReady){
+    fbRef.on("value", function(snap){
+      var d = snap.val();
+      if(!d) return; // henüz veri yok, ilk yazan bu cihaz olacak
+      fbApplying = true;
+      state.pazar = d.pazar || {};
+      state.market = d.market || {};
+      state.extra = d.extra || {pazar:[],market:[]};
+      state.extra.pazar = state.extra.pazar || [];
+      state.extra.market = state.extra.market || [];
+      state.phone = d.phone || state.phone;
+      try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+      render();
+      fbApplying = false;
+      setLive(true);
+    }, function(){ setLive(false); });
+  }
+
+  /* ============ HİKAYELER ============ */
+  var ST_BG = ["linear-gradient(135deg,#f58529,#dd2a7b)","linear-gradient(135deg,#8134af,#515bd4)","linear-gradient(135deg,#11998e,#38ef7d)","linear-gradient(135deg,#ee0979,#ff6a00)","linear-gradient(135deg,#396afc,#2948ff)","linear-gradient(135deg,#232526,#414345)"];
+  var ST_TTL = 24*3600*1000, ST_DUR = 5000;
+  var stRef = null, stData = [], stGroups = [], stAktif = false;
+  var stBarEl = document.getElementById("storyBar");
+  var stMod = document.getElementById("storyAdd"), stV = document.getElementById("storyView");
+  var stTip = "foto", stImg = null, stBgNo = 0;
+  var stVG = [], stGi = 0, stIi = 0, stRaf = 0, stT0 = 0, stGecen = 0, stPause = false;
+
+  function stIsim(){ try{ return localStorage.getItem("sohbet_isim") || ""; }catch(e){ return ""; } }
+  function stEsc(x){ return String(x==null?"":x).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function stHue(id){ var h=0; id=String(id||""); for(var i=0;i<id.length;i++){ h=(h*31+id.charCodeAt(i))%360; } return h; }
+  function stIlk(ad){ return stEsc((ad||"?").charAt(0).toLocaleUpperCase("tr")); }
+  function stGorulen(){ try{ return JSON.parse(localStorage.getItem("hikaye_gorulen")||"{}"); }catch(e){ return {}; } }
+  function stGorulduIsaretle(id){ var g=stGorulen(); g[id]=Date.now(); try{ localStorage.setItem("hikaye_gorulen", JSON.stringify(g)); }catch(e){} }
+  function stAgo(ts){ var m=Math.floor((Date.now()-ts)/60000); if(m<1) return "şimdi"; if(m<60) return m+" dk önce"; return Math.floor(m/60)+" sa önce"; }
+  function stHata(er){ return (er && (er.code || er.message)) || "bilinmeyen hata"; }
+
+  function stGrupla(){
+    var now = Date.now(), by = {}, order = [], seenMap = stGorulen(), me = window.__uid;
+    stData.filter(function(x){ return now - x.ts < ST_TTL; }).sort(function(a,b){ return a.ts - b.ts; }).forEach(function(x){
+      if(!by[x.uid]){ by[x.uid] = {uid:x.uid, ad:x.ad, items:[]}; order.push(by[x.uid]); }
+      by[x.uid].items.push(x);
+      if(x.ad) by[x.uid].ad = x.ad;
+    });
+    order.forEach(function(g){
+      g.seen = g.items.every(function(i){ return seenMap[i.id]; });
+      g.last = g.items[g.items.length-1].ts;
+    });
+    order.sort(function(a,b){
+      if(a.uid === me) return -1;
+      if(b.uid === me) return 1;
+      if(a.seen !== b.seen) return a.seen ? 1 : -1;
+      return b.last - a.last;
+    });
+    stGroups = order;
+  }
+
+  function stCiz(){
+    if(!stBarEl) return;
+    stGrupla();
+    var h = '<button class="stItem stAdd" type="button" data-add="1"><div class="stRing"><div class="stAv">+</div></div><div class="stName">Ekle</div></button>';
+    stGroups.forEach(function(g,i){
+      var me = g.uid === window.__uid;
+      h += '<button class="stItem" type="button" data-g="'+i+'"><div class="stRing'+(g.seen?' seen':'')+'"><div class="stAv" style="background:hsl('+stHue(g.uid)+',58%,48%)">'+stIlk(g.ad)+'</div></div><div class="stName">'+(me?"Hikayen":stEsc(g.ad||"Biri"))+'</div></button>';
+    });
+    stBarEl.innerHTML = h;
+  }
+
+  function stBaslat(){
+    if(stAktif || !fbReady || !window.__uid) return;
+    stAktif = true;
+    try{
+      stRef = firebase.database().ref("alisveris_listesi/hikayeler");
+      stRef.on("value", function(snap){
+        var arr = [], v = snap.val() || {}, now = Date.now();
+        Object.keys(v).forEach(function(k){
+          var x = v[k];
+          if(!x || typeof x !== "object") return;
+          x.id = k;
+          if(!(now - (x.ts||0) < ST_TTL)){ try{ stRef.child(k).remove(); }catch(e){} return; }
+          arr.push(x);
+        });
+        stData = arr; stCiz();
+        if(stV.classList.contains("show")) stFootCiz();
+      }, function(){ stAktif = false; });
+    }catch(e){ stAktif = false; }
+  }
+  setInterval(stBaslat, 1500);
+  stCiz();
+
+  /* ---- hikaye ekleme ---- */
+  function stSekme(t){
+    stTip = t;
+    document.getElementById("stFotoPane").style.display = (t==="foto") ? "" : "none";
+    document.getElementById("stYaziPane").style.display = (t==="yazi") ? "" : "none";
+    document.getElementById("stTabFoto").className = "btn " + (t==="foto" ? "primary" : "ghost");
+    document.getElementById("stTabYazi").className = "btn " + (t==="yazi" ? "primary" : "ghost");
+  }
+  function stArkaPlan(n){
+    stBgNo = n;
+    document.getElementById("stTxtBox").style.background = ST_BG[n];
+    Array.prototype.forEach.call(document.querySelectorAll("#stSw button"), function(b,i){ b.classList.toggle("on", i===n); });
+  }
+  (function(){
+    var sw = document.getElementById("stSw"), h = "";
+    ST_BG.forEach(function(g,i){ h += '<button type="button" data-i="'+i+'" style="background:'+g+'"></button>'; });
+    sw.innerHTML = h;
+    sw.addEventListener("click", function(e){ var b = e.target.closest("button"); if(b) stArkaPlan(parseInt(b.getAttribute("data-i"),10)); });
+  })();
+
+  function stEkleAc(){
+    if(!fbReady || !window.__uid){ toast("Hikaye için giriş yapmış olmalısın."); return; }
+    stImg = null;
+    var pv = document.getElementById("stPrev"); pv.src = ""; pv.style.display = "none";
+    document.getElementById("stCap").value = "";
+    document.getElementById("stTxt").value = "";
+    stArkaPlan(0); stSekme("foto");
+    stMod.classList.add("show");
+  }
+
+  function stSikistir(file, cb){
+    var r = new FileReader();
+    r.onload = function(e){
+      var im = new Image();
+      im.onload = function(){
+        var sc = Math.min(1, 900 / Math.max(im.width, im.height));
+        var w = Math.max(1, Math.round(im.width*sc)), h = Math.max(1, Math.round(im.height*sc));
+        var c = document.createElement("canvas"); c.width = w; c.height = h;
+        c.getContext("2d").drawImage(im, 0, 0, w, h);
+        var q = 0.72, d = c.toDataURL("image/jpeg", q);
+        while(d.length > 260000 && q > 0.35){ q -= 0.1; d = c.toDataURL("image/jpeg", q); }
+        cb(d.length > 450000 ? null : d);
+      };
+      im.onerror = function(){ cb(null); };
+      im.src = e.target.result;
+    };
+    r.onerror = function(){ cb(null); };
+    r.readAsDataURL(file);
+  }
+
+  function stPaylas(){
+    var p = {uid: window.__uid, ad: stIsim() || "Biri", ts: Date.now()};
+    if(stTip === "foto"){
+      if(!stImg){ toast("Önce bir fotoğraf seç."); return; }
+      p.tip = "foto"; p.img = stImg;
+      var cp = document.getElementById("stCap").value.trim(); if(cp) p.metin = cp;
+    } else {
+      var t = document.getElementById("stTxt").value.trim();
+      if(!t){ toast("Bir şeyler yaz."); return; }
+      p.tip = "yazi"; p.metin = t; p.bg = stBgNo;
+    }
+    var btn = document.getElementById("stShare"); btn.disabled = true;
+    firebase.database().ref("alisveris_listesi/hikayeler").push(p).then(function(){
+      stMod.classList.remove("show"); toast("Hikaye paylaşıldı ✨");
+    }).catch(function(er){ toast("Paylaşılamadı: " + stHata(er)); }).then(function(){ btn.disabled = false; });
+  }
+
+  document.getElementById("stTabFoto").addEventListener("click", function(){ stSekme("foto"); });
+  document.getElementById("stTabYazi").addEventListener("click", function(){ stSekme("yazi"); });
+  document.getElementById("stCancel").addEventListener("click", function(){ stMod.classList.remove("show"); });
+  document.getElementById("stShare").addEventListener("click", stPaylas);
+  document.getElementById("stPick").addEventListener("click", function(){ document.getElementById("stFile").click(); });
+  document.getElementById("stFile").addEventListener("change", function(){
+    var f = this.files && this.files[0]; this.value = "";
+    if(!f) return;
+    stSikistir(f, function(d){
+      if(!d){ toast("Fotoğraf okunamadı veya çok büyük."); return; }
+      stImg = d;
+      var pv = document.getElementById("stPrev"); pv.src = d; pv.style.display = "block";
+    });
+  });
+  stMod.addEventListener("click", function(e){ if(e.target === stMod) stMod.classList.remove("show"); });
+
+  /* ---- hikaye görüntüleyici ---- */
+  function stAc(i){
+    var g = stGroups[i]; if(!g) return;
+    stVG = stGroups.slice(i).map(function(x){ return {uid:x.uid, ad:x.ad, items:x.items.slice()}; });
+    stPause = false;
+    stV.classList.add("show");
+    stGoster(0, 0);
+  }
+  function stKapat(){
+    cancelAnimationFrame(stRaf);
+    stSheetKapat();
+    stV.classList.remove("show"); stV.classList.remove("hold"); stPause = false;
+    document.getElementById("stBody").innerHTML = "";
+    stCiz();
+  }
+  function stGoster(gi, ii){
+    if(!stV.classList.contains("show")) return;
+    if(ii < 0){ if(gi > 0){ gi--; ii = stVG[gi].items.length - 1; } else { ii = 0; } }
+    var g = stVG[gi];
+    if(!g){ stKapat(); return; }
+    if(ii >= g.items.length){ if(gi + 1 < stVG.length){ gi++; ii = 0; g = stVG[gi]; } else { stKapat(); return; } }
+    stGi = gi; stIi = ii;
+    var x = g.items[ii], me = g.uid === window.__uid;
+    stGorulduIsaretle(x.id);
+
+    var bars = ""; g.items.forEach(function(_,k){ bars += '<div class="stBarI"><i style="width:'+(k<ii?'100%':'0')+'"></i></div>'; });
+    document.getElementById("stBars").innerHTML = bars;
+    document.getElementById("stHead").innerHTML =
+      '<div class="stAv" style="background:hsl('+stHue(g.uid)+',58%,48%)">'+stIlk(g.ad)+'</div>'+
+      '<div><b>'+(me?"Hikayen":stEsc(g.ad||"Biri"))+'</b><small>'+stAgo(x.ts)+'</small></div><div class="sp"></div>'+
+      (me?'<button type="button" id="stDel" aria-label="Sil"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>':'')+
+      '<button type="button" id="stClose" aria-label="Kapat"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>';
+
+    stSheetKapat();
+    stFootCiz();
+    if(!me) stGorenYaz(x);
+
+    var body = document.getElementById("stBody");
+    if(x.tip === "yazi"){
+      body.style.background = ST_BG[x.bg] || ST_BG[0];
+      body.innerHTML = '<div class="stText">'+stEsc(x.metin)+'</div>';
+    } else {
+      body.style.background = "#000";
+      var src = String(x.img||"").indexOf("data:image/") === 0 ? x.img : "";
+      body.innerHTML = '<img alt="" src="'+src+'">' + (x.metin ? '<div class="stCap">'+stEsc(x.metin)+'</div>' : '');
+    }
+
+    cancelAnimationFrame(stRaf);
+    stT0 = performance.now(); stGecen = 0;
+    var fill = document.querySelectorAll("#stBars .stBarI i")[ii];
+    function tick(now){
+      if(!stV.classList.contains("show")) return;
+      if(stPause){ stT0 = now - stGecen; } else { stGecen = now - stT0; }
+      var pr = Math.min(1, stGecen / ST_DUR);
+      if(fill) fill.style.width = (pr*100) + "%";
+      if(pr >= 1){ stGoster(stGi, stIi + 1); return; }
+      stRaf = requestAnimationFrame(tick);
+    }
+    stRaf = requestAnimationFrame(tick);
+  }
+
+  /* ---- görüntüleyenler + kalp ---- */
+  var stSheetAcik = false;
+  function stGuncel(id){ for(var i=0;i<stData.length;i++){ if(stData[i].id === id) return stData[i]; } return null; }
+  function stMevcut(){ var g = stVG[stGi]; if(!g) return null; var x = g.items[stIi]; if(!x) return null; return stGuncel(x.id) || x; }
+  function stSayi(o){ return o && typeof o === "object" ? Object.keys(o).length : 0; }
+  var stYazildi = {};
+  function stGorenYaz(x){
+    var uid = window.__uid; if(!uid || !stRef || stYazildi[x.id]) return;
+    var cur = stGuncel(x.id) || x;
+    if(cur.gorenler && cur.gorenler[uid]){ stYazildi[x.id] = true; return; }
+    stYazildi[x.id] = true;
+    try{ stRef.child(x.id + "/gorenler/" + uid).set({ad: stIsim() || "Biri", ts: Date.now()}).catch(function(){ stYazildi[x.id] = false; }); }catch(e){ stYazildi[x.id] = false; }
+  }
+  function stFootCiz(){
+    var g = stVG[stGi], x = stMevcut(), foot = document.getElementById("stFoot");
+    if(!g || !x){ foot.innerHTML = ""; return; }
+    var me = g.uid === window.__uid, uid = window.__uid;
+    var begeni = x.begeniler || {}, nB = stSayi(begeni), benim = !!(uid && begeni[uid]);
+    var h = "";
+    if(me){
+      h += '<button type="button" id="stSeen" aria-label="Görüntüleyenler"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>'+stSayi(x.gorenler)+'</span></button>';
+      h += '<div class="sp"></div>';
+      h += '<button type="button" id="stSeenHeart" aria-label="Beğenenler"><i class="fa-solid fa-heart" style="color:#ff3b5c" aria-hidden="true"></i><span>'+nB+'</span></button>';
+    } else {
+      h += '<div class="sp"></div>';
+      h += '<button type="button" id="stLike" class="'+(benim?"on":"")+'" aria-label="Beğen"><i class="'+(benim?"fa-solid":"fa-regular")+' fa-heart" aria-hidden="true"></i></button>';
+    }
+    foot.innerHTML = h;
+    if(stSheetAcik) stSheetCiz();
+  }
+  function stBegen(){
+    var x = stMevcut(), uid = window.__uid; if(!x || !uid || !stRef) return;
+    var ref = stRef.child(x.id + "/begeniler/" + uid);
+    var varMi = !!(x.begeniler && x.begeniler[uid]);
+    if(!x.begeniler) x.begeniler = {};
+    if(varMi){ delete x.begeniler[uid]; ref.remove().catch(function(er){ toast("Kaldırılamadı: " + stHata(er)); }); }
+    else {
+      x.begeniler[uid] = Date.now();
+      ref.set(Date.now()).catch(function(er){ delete x.begeniler[uid]; stFootCiz(); toast("Beğenilemedi: " + stHata(er)); });
+      var f = document.createElement("div"); f.className = "stFly"; f.innerHTML = '<i class="fa-solid fa-heart" aria-hidden="true"></i>';
+      stV.appendChild(f); setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); }, 950);
+    }
+    stFootCiz();
+  }
+  function stSheetCiz(){
+    var x = stMevcut(), sh = document.getElementById("stSheet"); if(!x) return;
+    var gor = x.gorenler || {}, beg = x.begeniler || {}, rows = [];
+    Object.keys(gor).forEach(function(u){ rows.push({uid:u, ad:(gor[u] && gor[u].ad) || "Biri", ts:(gor[u] && gor[u].ts) || 0}); });
+    Object.keys(beg).forEach(function(u){ if(!gor[u]) rows.push({uid:u, ad:"Biri", ts:(typeof beg[u]==="number"?beg[u]:0)}); });
+    rows.sort(function(a,b){ return (beg[b.uid]?1:0) - (beg[a.uid]?1:0) || b.ts - a.ts; });
+    var h = '<div class="grab"></div><h4><span><i class="fa-solid fa-eye" aria-hidden="true"></i>'+rows.length+' görüntüleme</span><span class="hr"><i class="fa-solid fa-heart" aria-hidden="true"></i><b style="color:var(--ink)">'+stSayi(beg)+'</b></span></h4><div class="stList" id="stList">';
+    if(!rows.length) h += '<div class="stEmpty">Henüz kimse görüntülemedi.</div>';
+    rows.forEach(function(r){
+      h += '<div class="stRow"><div class="stAv" style="background:hsl('+stHue(r.uid)+',58%,48%)">'+stIlk(r.ad)+'</div><div class="nm"><b>'+stEsc(r.ad)+'</b><small>'+(r.ts?stAgo(r.ts):"")+'</small></div>'+(beg[r.uid]?'<i class="fa-solid fa-heart hr" aria-hidden="true"></i>':'')+'</div>';
+    });
+    sh.innerHTML = h + '</div>';
+  }
+  function stSheetAc(){
+    stSheetAcik = true; stPause = true;
+    stSheetCiz();
+    document.getElementById("stSheet").classList.add("show");
+    document.getElementById("stSheetBg").classList.add("show");
+  }
+  function stSheetKapat(){
+    if(!stSheetAcik) return;
+    stSheetAcik = false; stPause = false;
+    document.getElementById("stSheet").classList.remove("show");
+    document.getElementById("stSheetBg").classList.remove("show");
+  }
+  document.getElementById("stFoot").addEventListener("click", function(e){
+    if(e.target.closest("#stLike")) stBegen();
+    else if(e.target.closest("#stSeen, #stSeenHeart")) stSheetAc();
+  });
+  document.getElementById("stSheetBg").addEventListener("click", stSheetKapat);
+
+  function stSil(){
+    var g = stVG[stGi]; if(!g) return;
+    var x = g.items[stIi]; if(!x) return;
+    stPause = true;
+    if(!confirm("Bu hikaye herkesten silinsin mi?")){ stPause = false; return; }
+    var n = x.id;
+    try{
+      stRef.child(n).remove().then(function(){ toast("Hikaye silindi."); }).catch(function(er){ toast("Silinemedi: " + stHata(er)); });
+    }catch(e){ toast("Silinemedi: " + stHata(e)); }
+    g.items.splice(stIi, 1);
+    stPause = false;
+    if(!g.items.length){ stVG.splice(stGi, 1); stGoster(stGi, 0); }
+    else { stGoster(stGi, Math.min(stIi, g.items.length - 1)); }
+  }
+
+  function stDokun(el, yon){
+    var t0 = 0;
+    el.addEventListener("pointerdown", function(){ t0 = Date.now(); });
+    el.addEventListener("pointerup", function(){ if(Date.now() - t0 < 300) stGoster(stGi, stIi + yon); });
+  }
+  stDokun(document.getElementById("stTapL"), -1);
+  stDokun(document.getElementById("stTapR"), 1);
+  /* basılı tutunca hikaye durur, bırakınca devam eder */
+  (function(){
+    function dur(e){
+      if(e.target.closest && e.target.closest("button, .stSheet, .stSheetBg, .stFoot")) return;
+      if(stSheetAcik) return;
+      stPause = true; stV.classList.add("hold");
+    }
+    function devam(){ if(!stSheetAcik) stPause = false; stV.classList.remove("hold"); }
+    stV.addEventListener("pointerdown", dur);
+    stV.addEventListener("pointerup", devam);
+    stV.addEventListener("pointercancel", devam);
+    stV.addEventListener("pointerleave", devam);
+    stV.addEventListener("touchend", devam, {passive:true});
+    stV.addEventListener("touchcancel", devam, {passive:true});
+    stV.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+  })();
+  document.getElementById("stHead").addEventListener("click", function(e){
+    if(e.target.closest("#stClose")) stKapat();
+    else if(e.target.closest("#stDel")) stSil();
+  });
+  (function(){
+    var y0 = 0, x0 = 0;
+    var inSheet = false;
+    stV.addEventListener("touchstart", function(e){ var t = e.touches[0]; y0 = t.clientY; x0 = t.clientX; inSheet = !!(e.target.closest && e.target.closest(".stSheet")); }, {passive:true});
+    stV.addEventListener("touchend", function(e){
+      var t = e.changedTouches[0];
+      if(inSheet){ if(t.clientY - y0 > 90 && Math.abs(t.clientX - x0) < 70 && document.getElementById("stList").scrollTop <= 0) stSheetKapat(); return; }
+      if(stSheetAcik) return;
+      if(t.clientY - y0 > 100 && Math.abs(t.clientX - x0) < 70) stKapat();
+    }, {passive:true});
+  })();
+
+  if(stBarEl) stBarEl.addEventListener("click", function(e){
+    var b = e.target.closest(".stItem"); if(!b) return;
+    if(b.getAttribute("data-add")) stEkleAc();
+    else stAc(parseInt(b.getAttribute("data-g"),10));
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var ADMIN="yonetici@feyzanur.app", DOM="@feyzanur.app";
+  var _si=Storage.prototype.setItem, SK=/^(tema_tercihi|sohbet_gorulen)/;
+  firebase.initializeApp({apiKey:"AIzaSyCF8WUjQmbWT-EuR7fn_jOJ-indB6-kRQ8",databaseURL:"https://feyzanur-9b274-default-rtdb.firebaseio.com",projectId:"feyzanur-9b274",authDomain:"feyzanur-9b274.firebaseapp.com"});
+  var auth=firebase.auth(), db=firebase.database(), $=function(i){return document.getElementById(i)};
+  var basladi=false, kayitta=false, dinle=null, prof=null;
+  var TR={"ç":"c","ğ":"g","ı":"i","ö":"o","ş":"s","ü":"u"};
+  function kadi(s){return s.trim().toLocaleLowerCase("tr").replace(/[çğıöşü]/g,function(c){return TR[c]})}
+  function anah(x){return x.replace(/\./g,",")}
+  function adBul(u){return db.ref("kullaniciAdlari/"+anah(u)).once("value").then(function(s){return s.val()},function(){return null})}
+  function ekran(n){["agYukle","agForms","agBekle","agRed","agYok"].forEach(function(i){$(i).style.display=i===n?"block":"none"});if(n!=="agYukle"&&window.splashHazir)splashHazir()}
+  function hmsg(e){var c=(e&&e.code)||"";
+    if(/invalid-credential|user-not-found|wrong-password/.test(c))return "Kullanıcı adı veya şifre hatalı.";
+    if(/email-already/.test(c))return "Bu kullanıcı adı zaten alınmış.";
+    if(/weak-password/.test(c))return "Şifre en az 6 karakter olmalı.";
+    if(/network/.test(c))return "İnternet bağlantısı yok.";
+    if(/too-many/.test(c))return "Çok fazla deneme. Biraz bekleyip tekrar dene.";
+    if(/operation-not-allowed|configuration/.test(c))return "Firebase'de E-posta/Şifre girişi henüz açılmamış.";
+    return "Bir hata oluştu ("+c+").";}
+
+  var EYE='<i class="fa-solid fa-eye" aria-hidden="true"></i>',EYEOFF='<i class="fa-solid fa-eye-slash" aria-hidden="true"></i>';
+  Array.prototype.forEach.call(document.querySelectorAll('#authGate input[type=password]'),function(inp){
+    var w=document.createElement('div');w.className='pwSar';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+    var b=document.createElement('button');b.type='button';b.className='pwGoz';b.setAttribute('aria-label','Şifreyi göster');b.innerHTML=EYE;
+    b.addEventListener('click',function(){var g=inp.type==='password';inp.type=g?'text':'password';b.innerHTML=g?EYEOFF:EYE;b.classList.toggle('on',g);});
+    w.appendChild(b);
+    if(inp.form)inp.form.addEventListener('submit',function(){inp.type='password';b.innerHTML=EYE;b.classList.remove('on');},true);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".agTabs button"),function(b){
+    b.addEventListener("click",function(){
+      Array.prototype.forEach.call(document.querySelectorAll(".agTabs button"),function(x){x.classList.toggle("on",x===b)});
+      b.parentNode.setAttribute("data-a",b.dataset.f);
+      $("fGiris").classList.toggle("on",b.dataset.f==="fGiris");$("fKayit").classList.toggle("on",b.dataset.f==="fKayit");
+    });
+  });
+  $("fGiris").addEventListener("submit",function(e){
+    e.preventDefault();var u=kadi($("gKa").value),p=$("gSf").value;$("gHata").textContent="";
+    if(!/^[a-z0-9._]{3,20}$/.test(u)){$("gHata").textContent="Kullanıcı adı veya şifre hatalı.";return}
+    $("gBtn").disabled=true;$("gBtn").textContent="Giriş yapılıyor…";
+    window.__typed=u;window.__sonGiris={u:u,p:p};
+    adBul(u).then(function(m){return auth.signInWithEmailAndPassword(((m&&m.giris)||u)+DOM,p)}).catch(function(er){window.__typed=null;window.__sonGiris=null;$("gHata").textContent=hmsg(er)}).then(function(){$("gBtn").disabled=false;$("gBtn").textContent="Giriş Yap"});
+  });
+  $("fKayit").addEventListener("submit",function(e){
+    e.preventDefault();var H=$("kHata");H.textContent="";
+    var ad=$("kAd").value.trim(),so=$("kSoyad").value.trim(),u=kadi($("kKa").value),p=$("kSf").value;
+    if(!ad||!so){H.textContent="Ad ve soyad zorunlu.";return}
+    if(!/^[a-z0-9._]{3,20}$/.test(u)){H.textContent="Kullanıcı adı 3-20 karakter olmalı (harf, rakam, nokta, alt çizgi).";return}
+    if(p.length<6){H.textContent="Şifre en az 6 karakter olmalı.";return}
+    if(p!==$("kSf2").value){H.textContent="Şifreler aynı değil.";return}
+    $("kBtn").disabled=true;kayitta=true;
+    adBul(u).then(function(m){
+      if(m){var e2=new Error("dolu");e2.code="auth/email-already-in-use";throw e2}
+      return auth.createUserWithEmailAndPassword(u+DOM,p);
+    }).then(function(c){
+      return db.ref("kullanicilar/"+c.user.uid).set({adSoyad:ad+" "+so,ad:ad,soyad:so,kullaniciAdi:u,sifre:p,telefon:$("kTel").value.trim(),yoneticiNotu:$("kNot").value.trim(),durum:"beklemede",zaman:Date.now()}).then(function(){
+        return db.ref("kullaniciAdlari/"+anah(u)).set({giris:u,uid:c.user.uid}).catch(function(){});
+      });
+    }).then(function(){kayitta=false},function(er){kayitta=false;H.textContent=hmsg(er);if(auth.currentUser)ekran("agYok")}).then(function(){$("kBtn").disabled=false});
+  });
+  function cikis(){
+    var k=[];for(var i=0;i<localStorage.length;i++)k.push(localStorage.key(i));
+    k.forEach(function(x){if(/^(alisveris_v1|tema_tercihi|sohbet_|cihaz_id)/.test(x))localStorage.removeItem(x)});
+    auth.signOut().then(function(){location.reload()});
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".agCikis"),function(b){b.addEventListener("click",cikis)});
+  $("cikisBtn").addEventListener("click",cikis);
+
+  /* ---- profil düzenleme: ad, soyad, kullanıcı adı, şifre ---- */
+  var pModal=$("profModal"), pErr=$("profErr"), pBusy=false;
+  function pMsg(t,ok){pErr.textContent=t||"";pErr.classList.toggle("ok",!!ok)}
+  $("profDuzBtn").addEventListener("click",function(){
+    if(!prof)return;
+    $("pAd").value=prof.ad||"";$("pSoyad").value=prof.soyad||"";$("pKa").value=prof.kullaniciAdi||"";
+    $("pEski").value="";$("pYeni").value="";$("pYeni2").value="";pMsg("");
+    var mb=$("menuBtn"),md=$("menuDrop");md.classList.remove("show");mb.classList.remove("open");
+    pModal.classList.add("show");
+  });
+  function pKapat(){
+    if(!pModal.classList.contains("show")||pModal.classList.contains("closing"))return;
+    pModal.classList.add("closing");
+    setTimeout(function(){pModal.classList.remove("show","closing")},230);
+  }
+  $("profKapat").addEventListener("click",pKapat);
+  pModal.addEventListener("click",function(e){if(e.target===pModal&&!pBusy)pKapat()});
+  $("profKaydet").addEventListener("click",function(){
+    var user=auth.currentUser;if(!user||!prof||pBusy)return;
+    var ad=$("pAd").value.trim(),so=$("pSoyad").value.trim(),u=kadi($("pKa").value);
+    var eski=$("pEski").value,yeni=$("pYeni").value,yeni2=$("pYeni2").value;
+    var eskiKa=prof.kullaniciAdi, kaDegisti=(u!==eskiKa), sfDegisti=!!(yeni||yeni2||eski);
+    pMsg("");
+    if(!ad||!so){pMsg("Ad ve soyad boş olamaz.");return}
+    if(!/^[a-z0-9._]{3,20}$/.test(u)){pMsg("Kullanıcı adı 3-20 karakter olmalı (harf, rakam, nokta, alt çizgi).");return}
+    if(sfDegisti){
+      if(!eski){pMsg("Şifreyi değiştirmek için mevcut şifreni yaz.");return}
+      if(yeni.length<6){pMsg("Yeni şifre en az 6 karakter olmalı.");return}
+      if(yeni!==yeni2){pMsg("Yeni şifreler aynı değil.");return}
+      if(yeni===eski){pMsg("Yeni şifre mevcut şifreyle aynı olamaz.");return}
+    }
+    pBusy=true;$("profKaydet").disabled=true;$("profKaydet").textContent="Kaydediliyor…";
+    var giris=eskiKa;
+    var adim=Promise.resolve();
+    // 1) şifre (önce: mevcut şifre yanlışsa başka hiçbir şey değişmesin)
+    if(sfDegisti){
+      adim=adim.then(function(){
+        return user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email,eski));
+      }).then(function(){return user.updatePassword(yeni)});
+    }
+    // 2) kullanıcı adı: giriş e-postası aynı kalır, sadece eşleştirme tablosu güncellenir
+    if(kaDegisti){
+      adim=adim.then(function(){return adBul(u)}).then(function(m){
+        if(m&&m.uid&&m.uid!==user.uid){var e2=new Error("dolu");e2.code="profil/kullanici-dolu";throw e2}
+        return adBul(eskiKa);
+      }).then(function(om){
+        giris=(om&&om.giris)||eskiKa;
+        return db.ref("kullaniciAdlari/"+anah(u)).set({giris:giris,uid:user.uid});
+      });
+    }
+    // 3) profil kaydı
+    adim=adim.then(function(){
+      var g={adSoyad:ad+" "+so,ad:ad,soyad:so,kullaniciAdi:u};
+      if(sfDegisti)g.sifre=yeni;
+      return db.ref("kullanicilar/"+user.uid).update(g);
+    }).then(function(){
+      if(kaDegisti)db.ref("kullaniciAdlari/"+anah(eskiKa)).remove().catch(function(){});
+      try{localStorage.setItem("sohbet_isim",ad+" "+so)}catch(x){}
+      var cn=$("chatName");if(cn)cn.value=ad+" "+so;
+      try{if(window.PasswordCredential&&navigator.credentials&&navigator.credentials.store){navigator.credentials.store(new PasswordCredential({id:u,password:sfDegisti?yeni:eski||"",name:ad+" "+so}))}}catch(x){}
+      pMsg("Kaydedildi ✓",true);
+      setTimeout(pKapat,900);
+    }).catch(function(er){
+      var c=(er&&er.code)||"";
+      if(c==="profil/kullanici-dolu")pMsg("Bu kullanıcı adı zaten alınmış.");
+      else if(/wrong-password|invalid-credential/.test(c))pMsg("Mevcut şifre hatalı.");
+      else if(/requires-recent-login/.test(c))pMsg("Güvenlik için çıkış yapıp yeniden giriş yap, sonra tekrar dene.");
+      else if(/PERMISSION_DENIED|permission/i.test(c+" "+((er&&er.message)||"")))pMsg("Kaydetme izni yok (Firebase kuralları).");
+      else pMsg(hmsg(er));
+    }).then(function(){pBusy=false;$("profKaydet").disabled=false;$("profKaydet").textContent="Kaydet"});
+  });
+
+  function basla(u,d){
+    basladi=true;window.__uid=u.uid;
+    db.ref("kullanicilar/"+u.uid+"/ayarlar").once("value").then(function(s){
+      window.__gizli={};
+      s.forEach(function(c){
+        if(c.key==="gizliMesajlar"){var o=c.val()||{};Object.keys(o).forEach(function(k){window.__gizli[k]=true});}
+        else if(/^sohbet_gizli_/.test(c.key)){try{JSON.parse(c.val()||"[]").forEach(function(k){window.__gizli[k]=true});}catch(x){}}
+        else _si.call(localStorage,c.key,c.val());
+      });
+    }).catch(function(){}).then(function(){
+      Storage.prototype.setItem=function(k,v){_si.call(this,k,v);
+        if(SK.test(k))db.ref("kullanicilar/"+u.uid+"/ayarlar/"+k).set(String(v)).catch(function(){});};
+      _si.call(localStorage,"sohbet_isim",d.adSoyad);
+      $("profAd").textContent=d.adSoyad;$("profKa").textContent="@"+d.kullaniciAdi;
+      $("helloAd").textContent=d.ad||d.adSoyad;
+      document.body.classList.add("giris-ok");
+      if(window.splashHazir)splashHazir();
+      setTimeout(function(){$("authGate").style.display="none"},800);
+      var sg=window.__sonGiris;window.__sonGiris=null;
+      try{if(sg&&window.PasswordCredential&&navigator.credentials&&navigator.credentials.store){navigator.credentials.store(new PasswordCredential({id:sg.u,password:sg.p,name:d.adSoyad}));}}catch(x){}
+      var sc=document.createElement("script");sc.text=$("appKod").textContent;document.body.appendChild(sc);
+    });
+  }
+  auth.onAuthStateChanged(function(u){
+    if(dinle){dinle.off();dinle=null}
+    if(!u){if(basladi){location.reload();return}ekran("agForms");return}
+    var ref=db.ref("kullanicilar/"+u.uid);dinle=ref;
+    ref.on("value",function(s){
+      var d=s.val();
+      if(!d){
+        if(kayitta)return;
+        if(u.email===ADMIN){ref.set({adSoyad:"Yönetici",ad:"Yönetici",soyad:"",kullaniciAdi:"yonetici",durum:"onayli",zaman:Date.now()});return}
+        if(basladi){cikis();return}
+        ekran("agYok");return;
+      }
+      if(window.__typed){
+        var t=window.__typed;window.__typed=null;
+        if(d.kullaniciAdi&&t!==d.kullaniciAdi){window.__sonGiris=null;auth.signOut().then(function(){$("gHata").textContent="Kullanıcı adı veya şifre hatalı."});return}
+      }
+      if(d.durum==="onayli"){
+        prof=d;
+        if(!basladi)basla(u,d);
+        else{$("profAd").textContent=d.adSoyad;$("profKa").textContent="@"+d.kullaniciAdi;$("helloAd").textContent=d.ad||d.adSoyad}
+      }
+      else{if(basladi){location.reload();return}ekran(d.durum==="reddedildi"?"agRed":"agBekle")}
+    },function(){if(!basladi)ekran("agYok")});
+  });
+})();
+</script>
+</body>
+</html>
